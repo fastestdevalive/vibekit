@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Install vibekit skill(s) into a Gemini CLI project (GEMINI.md context).
+# Install vibekit skill(s) into a Gemini CLI project.
 #
 # Usage: ./install.sh [skill-name] [target-project-dir]
 #   target-project-dir defaults to the current directory.
 #
-# TODO: optionally emit .gemini/commands/<name>.toml for slash-command triggers.
-# For now this is a stub that appends the skill body to GEMINI.md.
+# Installs to two locations:
+#   GEMINI.md              ← context injected into every Gemini session
+#   .gemini/commands/      ← registers /skill-name slash commands
 
 set -euo pipefail
 
@@ -16,8 +17,10 @@ SKILLS_SRC="$REPO_ROOT/skills"
 SKILL="${1:-all}"
 TARGET="${2:-$(pwd)}"
 GEMINI_MD="$TARGET/GEMINI.md"
+COMMANDS_DIR="$TARGET/.gemini/commands"
 
 touch "$GEMINI_MD"
+mkdir -p "$COMMANDS_DIR"
 
 install_one() {
   local name="$1"
@@ -27,18 +30,35 @@ install_one() {
     return 1
   fi
 
+  # 1. Append skill body to GEMINI.md (idempotent via sentinel comment)
   if grep -q "<!-- vibekit:$name -->" "$GEMINI_MD" 2>/dev/null; then
     echo "skip   $name (already present in GEMINI.md)"
-    return
+  else
+    {
+      echo
+      echo "<!-- vibekit:$name -->"
+      cat "$src"
+      echo "<!-- /vibekit:$name -->"
+    } >> "$GEMINI_MD"
+    echo "appended $name → GEMINI.md"
   fi
 
-  {
-    echo
-    echo "<!-- vibekit:$name -->"
-    cat "$src"
-    echo "<!-- /vibekit:$name -->"
-  } >> "$GEMINI_MD"
-  echo "appended $name → $GEMINI_MD"
+  # 2. Emit .gemini/commands/<name>.md for slash-command trigger (e.g. /plan)
+  #    Gemini CLI loads *.md files from .gemini/commands/ as custom slash commands.
+  local cmd_file="$COMMANDS_DIR/$name.md"
+  if [[ -f "$cmd_file" ]]; then
+    echo "skip   $cmd_file (already exists)"
+  else
+    local desc
+    desc=$(grep '^description:' "$src" | head -1 | sed 's/^description:[[:space:]]*//')
+    {
+      echo "# /$name"
+      [[ -n "$desc" ]] && echo && echo "$desc"
+      echo
+      cat "$src"
+    } > "$cmd_file"
+    echo "wrote  $cmd_file"
+  fi
 }
 
 if [[ "$SKILL" == "all" ]]; then
@@ -50,5 +70,6 @@ else
 fi
 
 echo
-echo "Done. Updated: $GEMINI_MD"
-echo "Note: this adapter is a stub — does not yet emit .gemini/commands/*.toml."
+echo "Done."
+echo "  Context : $GEMINI_MD"
+echo "  Commands: $COMMANDS_DIR"

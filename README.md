@@ -6,15 +6,32 @@ Skills are written once as plain Markdown and adapted to each tool's native skil
 
 ---
 
-## What's in here
+## SWE workflow
+
+```
+PRD  →  Technical Plan  →  Implementation
+```
+
+| Step | When | Skill |
+|------|------|-------|
+| **PRD** | Large features: new UX flows, multi-screen changes, data model changes | `prd` |
+| **Technical plan** | All non-trivial work; always after PRD for large features | `planning` |
+| **Guardrails** | Applied continuously on every file touched | `guardrails` |
+
+For small changes (bug fixes, single-screen tweaks, refactors): skip the PRD, write a technical plan or go straight to implementation.
+
+---
+
+## Skills
 
 | Skill | What it does | Status |
-|-------|--------------|--------|
-| `planning` | Bullet-point feature plan template + agent writing guide + `.feature-plans/` scaffolder | ✅ v0.1 |
+|-------|-------------|--------|
+| `prd` | PRD template + writing guide — user behavior, options, decisions, screen layouts | ✅ v0.1 |
+| `planning` | Bullet-point technical plan + phased checklists with per-phase test verification | ✅ v0.2 |
+| `guardrails` | File size limits, code structure, VCS discipline, build behavior | ✅ v0.1 |
 | `code-review` | Agent-friendly review checklists + PR templates | 🔜 planned |
 | `debugging` | Structured bug investigation + RCA template | 🔜 planned |
 | `architecture` | ADR template (bullet-point style) | 🔜 planned |
-| `bootstrap` | One-command project bootstrap (CLAUDE.md, AGENTS.md, .feature-plans/) | 🔜 planned |
 
 ---
 
@@ -22,32 +39,40 @@ Skills are written once as plain Markdown and adapted to each tool's native skil
 
 ```
 vibekit/
+├── AGENTS.md                           ← agent guide (Gemini, Codex, etc.)
+├── CLAUDE.md                           ← same, for Claude Code
 ├── README.md
 ├── LICENSE
 ├── skills/
-│   └── planning/
-│       ├── skill.md                  ← source of truth + frontmatter
-│       ├── _plan_sample_format.md    ← the template
-│       ├── AGENTS.md                 ← writing guide
-│       └── scaffold.sh               ← creates .feature-plans/{pending,wip,done}/
+│   ├── prd/
+│   │   ├── skill.md                    ← source of truth + frontmatter
+│   │   ├── AGENTS.md                   ← PRD writing guide
+│   │   └── _prd_sample_format.md       ← PRD template
+│   ├── planning/
+│   │   ├── skill.md                    ← source of truth + frontmatter
+│   │   ├── AGENTS.md                   ← technical plan writing guide
+│   │   ├── _plan_sample_format.md      ← technical plan template
+│   │   └── scaffold.sh                 ← project bootstrapper
+│   └── guardrails/
+│       └── skill.md                    ← universal code quality rules
 ├── adapters/
-│   ├── claude-code/install.sh        ← → ~/.claude/skills/<name>/
-│   ├── cursor/install.sh             ← → .cursor/rules/<name>.mdc
-│   └── gemini/install.sh             ← → GEMINI.md / .gemini/commands/
-└── install.sh                        ← top-level dispatcher (detects tool)
+│   ├── claude-code/install.sh          ← → ~/.claude/skills/<name>/
+│   ├── cursor/install.sh               ← → .cursor/rules/<name>.mdc
+│   └── gemini/install.sh               ← → GEMINI.md + .gemini/commands/<name>.md
+└── install.sh                          ← top-level dispatcher
 ```
 
 ---
 
 ## How skills work across tools
 
-Each skill ships a `skill.md` with a YAML frontmatter superset:
+Each skill ships a `skill.md` with YAML frontmatter:
 
 ```yaml
 ---
 name: planning
-description: Structured feature planning with bullet-point format and phased checklists
-version: 0.1.0
+description: Structured technical plan with bullet-point format and phased checklists
+version: 0.2.0
 triggers:
   - "plan a feature"
   - "/plan"
@@ -58,11 +83,13 @@ globs:
 
 Each adapter cherry-picks the fields its target tool understands:
 
-| Tool | Native location | Fields used |
-|------|-----------------|-------------|
-| **Claude Code** | `~/.claude/skills/<name>/SKILL.md` | `name`, `description` |
-| **Cursor** | `.cursor/rules/<name>.mdc` | `description`, `globs` |
-| **Gemini CLI** | `GEMINI.md` / `.gemini/commands/*.toml` | body inlined |
+| Tool | Native location | What gets installed |
+|------|-----------------|---------------------|
+| **Claude Code** | `~/.claude/skills/<name>/SKILL.md` | `skill.md` renamed to `SKILL.md` |
+| **Cursor** | `.cursor/rules/<name>.mdc` | `skill.md` verbatim |
+| **Gemini CLI** | `GEMINI.md` (context) + `.gemini/commands/<name>.md` (slash cmd) | body inlined in both |
+
+Both `AGENTS.md` and `CLAUDE.md` live at the repo root so Claude Code and Gemini CLI automatically load project context when working inside this repo or a scaffolded project.
 
 ---
 
@@ -75,14 +102,17 @@ cd vibekit
 # Install all skills into Claude Code (~/.claude/skills/)
 ./install.sh claude-code
 
-# Or per-tool / per-skill
+# Install into a Gemini CLI project (GEMINI.md + .gemini/commands/)
+./install.sh gemini /path/to/your/project
+
+# Per-skill install
 ./adapters/claude-code/install.sh planning
 ```
 
-Then in your project:
+Then bootstrap a project:
 
 ```bash
-# Scaffold the .feature-plans/ structure for the planning skill
+# Creates .feature-plans/{pending,wip,done}/, PRD + plan templates, AGENTS.md, CLAUDE.md
 ./skills/planning/scaffold.sh /path/to/your/project
 ```
 

@@ -1,10 +1,11 @@
 ---
 name: planning
-description: Structured feature planning with strict bullet-point format, file/line references, and phased implementation checklists
-version: 0.1.0
+description: Structured technical feature plan with bullet-point format, file/line references, phased implementation checklists, and per-phase test verification
+version: 0.2.0
 triggers:
   - "plan a feature"
   - "write a feature plan"
+  - "write a technical plan"
   - "/plan"
 globs:
   - ".feature-plans/**"
@@ -14,14 +15,24 @@ globs:
 
 Use this skill whenever you are about to start non-trivial implementation work and want to align on the approach before writing code.
 
-## When to use
+## Workflow: PRD → Technical Plan → Implementation
+
+For larger features (new user-facing flows, multi-screen changes, data model changes):
+
+1. **Write a PRD first** (`/prd`) — captures *what* and *why*, options, decisions, screen layouts
+2. **Then write this technical plan** — captures *how*, file-by-file, phase-by-phase
+3. Link the PRD in the plan's `PRD:` frontmatter field
+
+For smaller work (bug fixes, refactors, single-screen changes), skip the PRD and start here.
+
+## When to write a technical plan
 
 - Multi-file changes with non-obvious sequencing
 - Features that touch data model + UI + persistence
 - Bug fixes where root cause is unclear and you need a research phase
 - Refactors spanning multiple modules
 
-## When NOT to use
+## When NOT to write a technical plan
 
 - One-line fixes
 - Pure docs / comment changes
@@ -35,7 +46,7 @@ Use this skill whenever you are about to start non-trivial implementation work a
    - **Bullet points only** — no prose paragraphs
    - File paths + line numbers for every code reference
    - Tables for files-to-modify and risks
-   - Phased checklist for implementation
+   - Phased checklist with **per-phase test verification** (`N.T1`, `N.T2` …)
 4. Move the file to `wip/` when work begins, `done/` when complete
 
 ## Scaffolding a new project
