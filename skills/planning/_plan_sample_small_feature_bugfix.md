@@ -1,4 +1,4 @@
-# Feature Plan: [Title]
+# Mini-Design: [Title]
 
 > One-line description / scope statement.
 
@@ -6,6 +6,7 @@
 **Branch:** `feat/[branch-name]`
 **Status:** Pending | WIP | Done
 **PRD:** `.feature-plans/pending/prd-<slug>.md` _(link if a PRD was written)_
+**Parent design:** `.feature-plans/pending/design-<slug>.md` _(link if this is a sub-plan of a big-feature design)_
 
 **Reference files:**
 - Data / schema: `path/to/schema.ext`
@@ -20,9 +21,14 @@
 - What's broken / missing (1-3 bullets)
 - Who's affected and how
 
+## Out of Scope
+
+- Explicit list of things this plan does NOT cover
+- Deferred items or follow-up work
+
 ## Concept
 
-- 1-3 bullets describing the feature at a high level
+- 1-3 bullets describing the feature / fix at a high level
 - What user-facing behavior changes
 - What the success state looks like
 
@@ -61,21 +67,23 @@ Bullet-point findings only. Include file paths + line numbers. No prose.
 
 ### Architecture
 
-- Option chosen and 1-line rationale
-- Key trade-offs vs alternatives (table if >2 options)
-
 ```
 User action → Controller → Service → Store
                 ↓
            UI state → Render
 ```
 
+- Option chosen and 1-line rationale
+- Key trade-offs vs alternatives (table if >2 options)
+
+**Decision:** chosen option — one-line reason why
+
 ### Data Model
 
 - Schema changes (1-line per field)
 - Migration needed? Y/N — why
 
-### Fix N: [Short title]
+### Fix / Change N: [Short title]
 
 - What changes, where (`file.ext:line`)
 - Key behavioral difference from current code

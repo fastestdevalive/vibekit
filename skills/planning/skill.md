@@ -41,7 +41,9 @@ For smaller work (bug fixes, refactors, single-screen changes), skip the PRD and
 ## How to use
 
 1. Create a new plan file under `.feature-plans/pending/<slug>.md`
-2. Copy the structure from [`_plan_sample_format.md`](./_plan_sample_format.md)
+2. Pick the right template:
+   - **Big feature / system design** → [`_plan_sample_big_feature_design.md`](./_plan_sample_big_feature_design.md) — alternatives, system context, entities, CUJs, API contract, rollout; spawns sub-plans
+   - **Small feature / bug fix / mini-design** → [`_plan_sample_small_feature_bugfix.md`](./_plan_sample_small_feature_bugfix.md) — scoped phases + test verification; may reference a parent big-feature design
 3. Follow the writing rules in [`AGENTS.md`](./AGENTS.md):
    - **Bullet points only** — no prose paragraphs
    - File paths + line numbers for every code reference
