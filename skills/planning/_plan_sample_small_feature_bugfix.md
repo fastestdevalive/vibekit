@@ -63,30 +63,87 @@ Bullet-point findings only. Include file paths + line numbers. No prose.
 
 ---
 
-## Approach
-
-### Architecture
+## Architecture
 
 ```
-User action → Controller → Service → Store
-                ↓
-           UI state → Render
+[Component A] → [Component B] → [Store / DB]
+                     ↓
+              [Component C] → [UI / Output]
 ```
 
-- Option chosen and 1-line rationale
-- Key trade-offs vs alternatives (table if >2 options)
+---
 
-**Decision:** chosen option — one-line reason why
+## Design Details
+
+### Critical User Journeys (CUJs)
+
+#### CUJ 1 — [Happy path title]
+
+```
+User opens [screen]
+  → Taps [action]
+  → System fetches / validates X
+  → User sees [state A]
+  → User confirms
+  → System persists → shows success state
+```
+
+- **Error path:** what happens when X fails (network, validation, auth)
+- **Edge case:** empty state / first-run / concurrent update
+
+#### CUJ 2 — [Error / edge-case title]
+
+```
+User attempts [action] without [precondition]
+  → System detects missing precondition
+  → Shows [error / prompt] with recovery action
+```
 
 ### Data Model
 
-- Schema changes (1-line per field)
-- Migration needed? Y/N — why
+| Entity | Field | Type | Constraints | Notes |
+|--------|-------|------|-------------|-------|
+| `EntityName` | `id` | `UUID` | PK | |
+| `EntityName` | `field` | `string` | NOT NULL | |
+| `RelatedEntity` | `entity_id` | `UUID` | FK → Entity.id | |
 
-### Fix / Change N: [Short title]
+- **Relationships:** Entity 1→N RelatedEntity; ...
+- **Indexes:** `entity_id`, `(field, created_at)` for [query]
+- **Migration:** Y — add `field`, backfill with `default`; or N
 
-- What changes, where (`file.ext:line`)
-- Key behavioral difference from current code
+### API Contracts
+
+```
+POST /api/[resource]
+  Request:  { field: type, ... }
+  Response: { result: Type, meta: Meta }
+  Errors:   400 VALIDATION_ERROR, 401 UNAUTHORIZED, 404 NOT_FOUND
+
+GET /api/[resource]/:id
+  Request:  —
+  Response: { item: Type }
+  Errors:   403 FORBIDDEN, 404 NOT_FOUND
+```
+
+_(One block per contract — REST endpoints, GraphQL mutations/queries, RPC methods, or internal service interfaces.)_
+
+### Key Decisions
+
+#### Decision 1: [Short title]
+
+- **Decision:** what was chosen
+- **Rationale:** why (tradeoff / constraint)
+- **Where:** `file.ext:line` — what changes
+
+```
+// optional: critical snippet — only when the code pattern itself is the decision
+```
+
+#### Decision 2: [Short title]
+
+- **Decision:** what was chosen
+- **Rationale:** why (tradeoff / constraint)
+- **Where:** `file.ext:line` — what changes
 
 ---
 
