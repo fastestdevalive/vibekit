@@ -25,17 +25,10 @@ install_one() {
 
   mkdir -p "$dest"
 
-  # Claude Code expects SKILL.md (uppercase). Map skill.md → SKILL.md.
-  if [[ -f "$src/skill.md" ]]; then
-    cp "$src/skill.md" "$dest/SKILL.md"
-    echo "wrote  $dest/SKILL.md"
-  fi
-
-  # Copy any other resources alongside (templates, scripts, etc.)
+  # Copy all files, including SKILL.md
   for f in "$src"/*; do
     [[ -e "$f" ]] || continue
     base="$(basename "$f")"
-    [[ "$base" == "skill.md" ]] && continue
     cp -R "$f" "$dest/"
     echo "wrote  $dest/$base"
   done
