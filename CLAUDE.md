@@ -23,12 +23,13 @@ For small changes (bug fixes, single-screen tweaks, refactors): skip the PRD, wr
 | [`prd`](skills/prd/) | Product requirements — user behavior, options, decisions, screen layouts |
 | [`planning`](skills/planning/) | Technical plan — bullet-point, file/line refs, phased checklists + test verification |
 | [`guardrails`](skills/guardrails/) | File size limits, code structure, VCS discipline, build behavior |
+| [`android-coding`](skills/android-coding/) | Android/Kotlin/Compose rules — modular architecture, ViewModel scope, Material 3, Compose pitfalls, strings, navigation, network safety |
 
 ## Repo layout
 
 ```
 skills/<name>/
-  skill.md                   ← source of truth + YAML frontmatter
+  SKILL.md                   ← source of truth + YAML frontmatter
   AGENTS.md                  ← agent writing guide for this skill
   _prd_sample_format.md      ← (prd) PRD template
   _plan_sample_format.md     ← (planning) technical plan template
@@ -62,6 +63,6 @@ install.sh                   ← top-level dispatcher
 
 ## Adding a new skill
 
-1. Create `skills/<name>/skill.md` with YAML frontmatter (`name`, `description`, `version`, `triggers`, `globs`)
+1. Create `skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`, `version`, `triggers`, `globs`)
 2. Add an `AGENTS.md` agent writing guide if the skill has format or style rules
 3. All adapters pick up the new skill automatically via directory glob

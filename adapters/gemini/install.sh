@@ -24,9 +24,9 @@ mkdir -p "$COMMANDS_DIR"
 
 install_one() {
   local name="$1"
-  local src="$SKILLS_SRC/$name/skill.md"
+  local src="$SKILLS_SRC/$name/SKILL.md"
   if [[ ! -f "$src" ]]; then
-    echo "Error: no skill.md for $name" >&2
+    echo "Error: no SKILL.md for $name" >&2
     return 1
   fi
 
