@@ -36,6 +36,7 @@ Android/Kotlin/Compose rules. Apply on every file you touch in an Android projec
 - Guardrails already covers feature-vs-layer organization and the `components/` / `common/` split. The Android-specific shape on top of that:
 - A feature directory co-locates its Screen and ViewModel: `feature/<name>/<Name>Screen.kt`, `feature/<name>/<Name>ViewModel.kt`.
 - Sub-composables used by one screen live in `feature/<name>/components/`. The screen file should not be a 1,000-line wall of composables.
+- Soft preference: isolate classes that touch Android-specific APIs (`Context`, `PackageManager`, `LocationManager`, `WorkManager`, etc.) behind a small interface in the feature/repository layer. Keeps the surface easy to fake in tests and easier to swap if the project ever moves to Compose Multiplatform. Don't over-engineer — one interface + one Android impl is plenty.
 
 ## 4. ViewModel scope
 
