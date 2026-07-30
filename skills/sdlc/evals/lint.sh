@@ -85,6 +85,7 @@ if grep -rn "\.feature-plans\|\.reports/" . --include="*" 2>/dev/null \
     | grep -v "^./.vibekit/feature-plans/" \
     | grep -v "^./.git/" \
     | grep -v "^./skills/sdlc/evals/lint.sh" \
+    | grep -v "^./skills/sdlc/evals/smoke.sh" \
     | grep -q .; then
   fail "stale .feature-plans/ or .reports/ reference found outside .vibekit/feature-plans/"
 else
@@ -250,5 +251,12 @@ else
   fail "$(cat /tmp/vk_schema_out /tmp/vk_schema_err | head -2)"
 fi
 rm -f /tmp/vk_schema_out /tmp/vk_schema_err
+
+# --- eval fixtures resolve under the current layout (fast; no agent spawned) ---
+if bash "$(dirname "${BASH_SOURCE[0]}")/smoke.sh" >/dev/null 2>&1; then
+  pass "eval fixtures + installed skill agree with the current layout"
+else
+  fail "eval fixture smoke test failed — run skills/sdlc/evals/smoke.sh"
+fi
 
 exit "$FAIL"
