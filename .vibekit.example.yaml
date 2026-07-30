@@ -6,7 +6,8 @@
 #
 # Copy to `.vibekit.yaml` at your repo root and delete what you don't need.
 # No file present → every value below applies as its default.
-# Committed, not gitignored — config travels with the branch to every worktree.
+# Gitignored — each worktree keeps its own. Copy this file per worktree; absent
+# means every documented default applies, which is a sane starting point.
 #
 # Legend:
 #   [honored] the skill acts on it today
