@@ -92,16 +92,30 @@ else
 fi
 rm -rf "$TMPD"
 
-# 8. companion-only dir is skipped by cursor installer, not fatal
-mkdir -p skills/_probe
-TMPD2="$(mktemp -d)"
-if ./install.sh cursor all "$TMPD2" >/dev/null; then
-  pass "cursor installer skips a SKILL.md-less dir without aborting"
-else
-  fail "cursor installer aborted on a companion-only dir"
-fi
-rmdir skills/_probe 2>/dev/null
-rm -rf "$TMPD2"
+# 8. EVERY adapter must skip a companion-only dir, not abort mid-loop.
+#    Was cursor-only; agy shipped uncovered and claude-code was missing the guard entirely.
+mkdir -p skills/_probe && echo probe > skills/_probe/NOTES.md
+for adp in claude-code cursor gemini agy; do
+  TMPD2="$(mktemp -d)"
+  if [[ "$adp" == "claude-code" ]]; then
+    CLAUDE_SKILLS_DIR="$TMPD2" ./install.sh "$adp" >/dev/null 2>&1
+  else
+    ./install.sh "$adp" all "$TMPD2" >/dev/null 2>&1
+  fi
+  rc=$?
+  n=$(find "$TMPD2" \( -name 'SKILL.md' -o -name '*.mdc' -o -name '*.md' \) 2>/dev/null | wc -l)
+  # A companion-only dir must be SKIPPED: neither aborting the run nor installing
+  # as a bogus skill. claude-code silently did the latter — install_one only
+  # tested that the source dir exists, never that it holds a SKILL.md.
+  bogus=$(find "$TMPD2" -path '*_probe*' 2>/dev/null | wc -l)
+  if [[ $rc -eq 0 && $n -ge 5 && $bogus -eq 0 ]]; then
+    pass "$adp skips a SKILL.md-less dir and still installs every skill"
+  else
+    fail "$adp mishandled a companion-only dir (rc=$rc files=$n bogus=$bogus)"
+  fi
+  rm -rf "$TMPD2"
+done
+rm -rf skills/_probe
 
 # 9. claude-code install excludes evals/ and CONTRIBUTING.md
 TMPD3="$(mktemp -d)"
@@ -151,10 +165,13 @@ else
 fi
 
 # 12. reviewer.gate present in the config template, and the template still parses.
-if grep -qE '^\s*gate:' .vibekit.example.yaml; then
-  pass ".vibekit.example.yaml documents reviewer.gate"
+if python3 -c "
+import yaml,sys
+d=yaml.safe_load(open('.vibekit.example.yaml'))
+sys.exit(0 if 'gate' in (d.get('sdlc',{}).get('agents',{}).get('reviewer') or {}) else 1)" 2>/dev/null; then
+  pass "sdlc.agents.reviewer.gate present at the correct path"
 else
-  fail ".vibekit.example.yaml is missing reviewer.gate"
+  fail "sdlc.agents.reviewer.gate missing or at the wrong path"
 fi
 if python3 -c "import yaml" 2>/dev/null; then
   if python3 -c "import yaml;yaml.safe_load(open('.vibekit.example.yaml'))" 2>/dev/null; then
@@ -183,9 +200,6 @@ for sep in '\+' '-'; do
     fail "EXAMPLES.md has no ${sep//\\/} chain example with real phase tokens on both sides"
   fi
 done
-
-# 15. sdlc agent-guide companions — covered by check #3's per-class cap (COMPANIONS, < 600); no-op here.
-pass "sdlc companions covered by check #3 (per-class cap)"
 
 # --- cross-skill edges must be imperative, not descriptive ---
 # Explicit expected edges: "<skill> depends on <parent>" — inferring direction from prose
