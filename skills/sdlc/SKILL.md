@@ -53,41 +53,31 @@ Load each one at the phase that needs it — do not write the artifact from memo
 - No global tier in V1
 
 ```yaml
-# .vibekit.yaml — full V1 schema
+# .vibekit.yaml — common case. FULL SCHEMA: `.vibekit.example.yaml` (canonical)
 sdlc:
-  runner:
-    mode: auto               # auto | meta-harness | in-harness
-    meta_harness: null       # null (default) | agent-orchestrator | vibe-station | custom
-    roles:
-      implementer: in-harness
   reviewer:
-    model: opus               # explicit name, or ${CLI_DEFAULT}
-    gate: llm                 # llm | user | both — who closes an artifact phase
-    max_iterations: 3
-    prompt: |                 # optional, appended to review request
-      Flag missing test coverage and undefined cross-layer contracts.
-  setup:
-    commands:                 # optional, free-form; run before implementation
-      - git submodule update --init --recursive
-  device:
-    ask_before_access: true   # shared-device protocol
-
+    model: opus        # any model, or ${CLI_DEFAULT}
+    gate: llm          # llm | user | both
+    max_iterations: 2
 screenshots:
-  policy: transient           # DEFAULT — never committed unless changed
-  confirm_cleanup: true
+  policy: transient    # transient | permanent
 ```
 
+> **Canonical schema: [`.vibekit.example.yaml`](../../.vibekit.example.yaml)** — every field,
+> its default, and whether it is honored or reserved. This block is a subset; it never
+> defines a field the canonical file doesn't.
+
 - **No `.vibekit.yaml` present** → every value above is the default; screenshots stay `transient`
-- `sdlc.reviewer.model: ${CLI_DEFAULT}` sentinel resolves per CLI:
+- `sdlc.agents.reviewer.model: ${CLI_DEFAULT}` sentinel resolves per CLI:
 
 | Sentinel | Claude Code | Cursor | Gemini CLI |
 |----------|-------------|--------|------------|
-| `${CLI_DEFAULT}` | `opus` | `claude-sonnet` | `gemini-2.5-pro` |
+| `${CLI_DEFAULT}` | `opus` | `claude-sonnet` | `gemini-3.5-pro` |
 
 - Reviewer model unavailable under `gate: llm`/`both` → warn and continue without review; the LLM review is an enhancement, not a gate
 - Under `gate: user` no reviewer is requested, so the unavailable-fallback does not apply — the human stop still holds
 
-**`sdlc.reviewer.gate` — who closes an artifact phase:**
+**`sdlc.agents.reviewer.gate` — who closes an artifact phase:**
 
 | `gate` | Reviewer subagent | Stops for human | `max_iterations` applies |
 |--------|:-----------------:|:---------------:|:------------------------:|
@@ -158,7 +148,7 @@ SUB-FEATURE CYCLE
 - **Outer loop** — iterates over the sub-feature queue until empty; a feature that decomposed into zero parts still has exactly one queue entry (`root`) — the queue is never empty on first entry
 - **Inner cycle** — PRD (optional) → plan → review → implement → verify → review, per sub-feature
 - **`root` skips its own plan phase** — its artifact IS `plan-<feature>.md`, already reviewed at FEATURE LEVEL; `root` enters the inner cycle at `implement` (`master.plan: complete` is the signal) — never review that file twice
-- Every review step under `gate: llm`/`both` reads `sdlc.reviewer.model` and caps at `max_iterations` (default 3), then escalates to the user
+- Every review step under `gate: llm`/`both` reads `sdlc.agents.reviewer.model` and caps at `max_iterations` (default 2), then escalates to the user
 - **A phase chain truncates this flow** — `/sdlc plan <feature>` stops after the plan and waits for you (see [`GRAMMAR.md`](./GRAMMAR.md))
 
 ---
@@ -308,18 +298,8 @@ subfeatures:
 
 ## Runner — where subagents execute
 
-```yaml
-sdlc:
-  runner:
-    mode: auto                  # auto | meta-harness | in-harness
-    meta_harness: null          # null = none; agent-orchestrator | vibe-station | custom
-    roles:                      # per-role override; defaults shown
-      planner:     in-harness   # interactive — delegating breaks the iteration loop
-      reviewer:    in-harness   # read-only, short-lived
-      implementer: in-harness   # → meta-harness once one is configured
-      verifier:    in-harness   # needs the parent session's device context
-    spawn_command: "<cmd> --cwd {worktree} --model {model} --prompt-file {prompt}"  # only for custom
-```
+> Agent routing is configured in [`.vibekit.example.yaml`](../../.vibekit.example.yaml)
+> under `sdlc.agents.<name>.run_in`. Only `implementer` is honored today; the rest are reserved.
 
 | Role | Interactive | Needs isolation | Default | Why |
 |------|:----------:|:---------------:|---------|-----|
@@ -328,7 +308,7 @@ sdlc:
 | Implementer | No | **Yes** | in-harness → meta-harness when configured | Long-running; survives session death |
 | Verifier | No | No | in-harness | Needs the parent's device/emulator context |
 
-**Placeholders in `spawn_command`:** `{worktree}` `{model}` `{prompt}` `{prompt_file}` `{feature}` `{subfeature}`
+**Placeholders in `spawn.command`:** `{worktree}` `{model}` `{prompt}` `{prompt_file}` `{feature}` `{subfeature}`
 
 **Fallback chain:**
 
@@ -336,7 +316,7 @@ sdlc:
 mode: auto  (default)
   → everything in-harness
   → if a harness is detected, print ONCE:
-      "vibe-station detected — set runner.meta_harness to delegate implementers"
+      "vibe-station detected — set spawn.meta_harness to delegate implementers"
   → never delegates on detection alone
 mode: meta-harness
   → use it for roles marked meta-harness

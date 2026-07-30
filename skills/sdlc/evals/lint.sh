@@ -10,6 +10,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 FAIL=0
+SCHEMA_CHECK="$(dirname "${BASH_SOURCE[0]}")/schema-check.py"
 fail() { echo "FAIL: $1" >&2; FAIL=1; }
 pass() { echo "pass: $1"; }
 
@@ -150,19 +151,19 @@ else
 fi
 
 # 12. reviewer.gate present in the config template, and the template still parses.
-if grep -qE '^\s*gate:' .vibekit.yaml.example; then
-  pass ".vibekit.yaml.example documents reviewer.gate"
+if grep -qE '^\s*gate:' .vibekit.example.yaml; then
+  pass ".vibekit.example.yaml documents reviewer.gate"
 else
-  fail ".vibekit.yaml.example is missing reviewer.gate"
+  fail ".vibekit.example.yaml is missing reviewer.gate"
 fi
 if python3 -c "import yaml" 2>/dev/null; then
-  if python3 -c "import yaml;yaml.safe_load(open('.vibekit.yaml.example'))" 2>/dev/null; then
-    pass ".vibekit.yaml.example parses as YAML"
+  if python3 -c "import yaml;yaml.safe_load(open('.vibekit.example.yaml'))" 2>/dev/null; then
+    pass ".vibekit.example.yaml parses as YAML"
   else
-    fail ".vibekit.yaml.example is not valid YAML"
+    fail ".vibekit.example.yaml is not valid YAML"
   fi
 else
-  pass ".vibekit.yaml.example YAML parse skipped (PyYAML not installed)"
+  pass ".vibekit.example.yaml YAML parse skipped (PyYAML not installed)"
 fi
 
 # 13. /sdlc continue must be a registered subcommand — without it awaiting_phase never clears.
@@ -210,5 +211,15 @@ for edge in $EDGES; do
     fail "$child names $parent as a dependency but no line tells the agent to READ it"
   fi
 done
+
+# --- canonical config schema: single source of truth ---
+# Three partial copies of the config drifted before this check existed. The example file is
+# canonical; any config key named in the docs must exist in it.
+if python3 "$SCHEMA_CHECK" >/tmp/vk_schema_out 2>/tmp/vk_schema_err; then
+  pass ".vibekit.example.yaml parses and covers every documented config key"
+else
+  fail "$(cat /tmp/vk_schema_out /tmp/vk_schema_err | head -2)"
+fi
+rm -f /tmp/vk_schema_out /tmp/vk_schema_err
 
 exit "$FAIL"

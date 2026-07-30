@@ -386,7 +386,7 @@ untyped. Tighten it.
 **Notes:**
 - The stop is a **rule now, not a request** — it is in the state file, so a fresh session or a handoff still honors it
 - `/sdlc continue` advances **exactly one** phase — it does not promote you back to the full chain
-- Want the human stop on every phase permanently? Set `sdlc.reviewer.gate: user` (or `both`) instead of retyping a chain
+- Want the human stop on every phase permanently? Set `sdlc.agents.reviewer.gate: user` (or `both`) instead of retyping a chain
 - `/sdlc backup-restore` is still a **feature name**, not a chain — `backup` is not a phase token
 
 ---
@@ -438,7 +438,7 @@ want to run the verification pass myself.
 backup-restore  (wip)
   03-fix-nav-regressions   mode: implementing   origin: bug-bundle (from 02-api)
   checklist: 6/11 [x]      next: 2.4 — wrap restore in a transaction
-  runner: in-harness (vibe-station detected — set runner.meta_harness to delegate)
+  agents: all in-harness (vibe-station detected — set spawn.meta_harness to delegate)
 ```
 
 ```
@@ -463,7 +463,7 @@ done/     onboarding-revamp     2 sub-features
 | Cheap-agent-ready | "check it's self-contained for haiku" | "is the plan done?" |
 | Targeted review | "look specifically for X" | "review again" |
 | Scope one invocation | `/sdlc plan <f>` or `/sdlc prd+plan <f>` | "just do the plan for now" |
-| Stop on every phase, always | `sdlc.reviewer.gate: user` in `.vibekit.yaml` | retyping a chain each time |
+| Stop on every phase, always | `sdlc.agents.reviewer.gate: user` in `.vibekit.yaml` | retyping a chain each time |
 
 ## Things the agent will not do without being asked
 
