@@ -183,6 +183,12 @@ delegate reports done
 **M9 — scoped invocation**
 - Parse per [`GRAMMAR.md`](./GRAMMAR.md) — subcommand beats chain beats feature name; never guess on ambiguity
 - Run exactly the chain, then STOP; write `awaiting_phase` + `awaiting_artifact`, leave `mode` alone
+- **Write the state file BEFORE reporting to the user.** At any chain end or gate stop, in this order:
+  1. mark the phase just finished (`master.<phase>: complete`, or the sub-feature's `last_completed`)
+  2. set `awaiting_phase` to that phase and `awaiting_artifact` to the file it produced
+  3. only then report what stopped and what `/sdlc continue` would do
+- A stop that reports without writing leaves the pause **conversational only** — it does not survive a
+  new session, which defeats the entire point of the gate
 - Report the artifact path and name what would come next — do NOT start it
 - Announce any canonical reorder **before** the first write; chain end stops regardless of `gate`
 

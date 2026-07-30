@@ -107,9 +107,9 @@ Each adapter cherry-picks the fields its target tool understands:
 
 | Tool | Native location | What gets installed |
 |------|-----------------|---------------------|
-| **Claude Code** | `~/.claude/skills/<name>/SKILL.md` | `SKILL.md` copied verbatim |
-| **Cursor** | `.cursor/rules/<name>.mdc` | **SKILL.md only — companion links do NOT resolve** |
-| **Gemini CLI** | `GEMINI.md` (context) + `.gemini/commands/<name>.md` (slash cmd) | **SKILL.md only — companion links do NOT resolve** |
+| **Claude Code** | `~/.claude/skills/<name>/SKILL.md` | `SKILL.md` + companion files copied verbatim, each loaded on demand |
+| **Cursor** | `.cursor/rules/<name>.mdc` | `SKILL.md` **+ every linked companion inlined** into the single `.mdc` (Cursor has no companion-file mechanism) |
+| **Gemini CLI** | `GEMINI.md` (context) + `.gemini/commands/<name>.md` (slash cmd) | `SKILL.md` **+ every linked companion inlined** into both destinations |
 | **agy (Antigravity)** | `.agents/skills/<name>/SKILL.md` | whole skill dir copied verbatim, same progressive-disclosure model as Claude Code |
 
 Both `AGENTS.md` and `CLAUDE.md` live at the repo root so Claude Code and Gemini CLI automatically load project context when working inside this repo or a scaffolded project.

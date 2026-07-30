@@ -85,12 +85,59 @@ answer makes the eval flaky against equally-valid alternatives.
 until a forward-progress assertion was added. Mutation-test each case: seed a do-nothing prompt
 and confirm it FAILS.
 
+**Status legend:** `fixtured` = fixture + `assert_<id>` exist in `run.sh`, mutation-tested (do-nothing
+fails). `deferred` = not yet built, no known headless blocker — buildable with the techniques already
+used here (pre-authorization in the prompt, output-content assertions). `not-fixturable-headless` =
+a specific, named reason the technique bag doesn't cover it.
+
 | Case | Headless status |
 |------|-----------------|
-| E1 | ✅ run live — passes; mutation-tested |
-| E4 | ✅ run live — passes with pre-authorization; assertion loosened to `n < bug_count` after a false failure |
-| E15 | hybrid — needs an output-content assertion |
-| all others | not yet run |
+| E1 | `fixtured` — ✅ run live, passes; mutation-tested |
+| E4 | `fixtured` — ✅ run live, passes with pre-authorization; assertion loosened to `n < bug_count` after a false failure |
+| E15 | `fixtured` — hybrid, output-content assertion (worktree path must be named in output) |
+| E12 | `fixtured` — output-content assertion (review must name "boundary/contract/interface"); mutation-tested |
+| E13 | `fixtured` — checklist-wins-over-state + output-content mismatch flag; mutation-tested |
+| E14 | `fixtured` — re-verify-don't-trust-`[x]`, `verified_by` must be non-null (not just present); mutation-tested |
+| E16 | `fixtured` — escalation choice asserted via output content (`continue` + `pause`); mutation-tested |
+| E22 | `fixtured` — M1 "nothing exists yet" fixture (no pre-existing `.vibekit/`); mutation-tested |
+| E34 | `fixtured` — the drain-deadlock regression case; asserts the feature dir actually reaches `done/`; mutation-tested |
+| E36 | `fixtured` — output-content ("nothing awaiting") + forward-progress assertion; mutation-tested |
+| E37 | `fixtured` — hybrid, output must name the awaited artifact; mutation-tested |
+| E2 | `deferred` — same prompt-narration technique as E14/E16 applies; not yet built |
+| E3 | `deferred` — same technique as E2; not yet built |
+| E5 | `deferred` — needs a seeded "approach proven wrong" narrative + `## Superseded` table assertion; not yet built |
+| E6 | `deferred` — needs stale file:line refs seeded in a plan against a rebased tree; not yet built |
+| E7 | `deferred` — needs a small in-scope scope-change prompt; not yet built |
+| E8 | `deferred` — needs a large out-of-scope scope-change prompt; not yet built |
+| E9 | `deferred` — needs a simulated CI-red-on-lint-only signal in the prompt; not yet built |
+| E10 | `deferred` — needs `git check-ignore` assertion machinery for a `.png` under a sub-feature; not yet built |
+| E11 | `deferred` — same pending/ move technique as E7's M7 sibling (M7 already covered narratively in PHASES.md); not yet built |
+| E17 | `not-fixturable-headless` — the case setup requires `.vibe-station/` to appear in the **cwd path itself** (harness-path detection); `run.sh`'s `run_case` copies every fixture into a fresh generic `mktemp -d`, which never contains that segment. Testing it needs a `run_case` change to control the workdir path, not just fixture content — out of scope for this pass |
+| E18 | `deferred` — needs an already-open `04-` bug-bundle dir seeded, then one more bug reported; not yet built |
+| E19 | `deferred` — same prompt-narration technique as E16 ("device already in use, say so"); not yet built |
+| E20 | `deferred` — needs seeded screenshot refs + a cleanup-step prompt; not yet built |
+| E21 | `deferred` — needs a PRD/plan seeded with a deliberate conflict; not yet built |
+| E23 | `deferred` — same M9 chain technique as E22, two-token chain; not yet built |
+| E24 | `deferred` — same M9 technique as E22, three-token chain through implement; not yet built |
+| E25 | `deferred` — needs a feature dir literally named `plan/` to force the ambiguity branch; not yet built |
+| E26 | `deferred` — needs an existing feature whose name collides with nothing (`backup-restore`); not yet built |
+| E27 | `deferred` — same awaiting_phase-restate technique as E37, feature-name invocation instead of `continue`; not yet built |
+| E28 | `deferred` — same awaiting_phase technique as E37, `/sdlc continue` advancing prd→plan chain; not yet built |
+| E29 | `deferred` — needs `gate: user` in `.vibekit/config.yaml`; not yet built |
+| E30 | `deferred` — needs `gate: both` in `.vibekit/config.yaml`; not yet built |
+| E31 | `deferred` — needs an mtime-ordering assertion for `implement+plan`; not yet built |
+| E32 | `deferred` — needs `/sdlc add plan` dispatch-precedence fixture; not yet built |
+| E33 | `deferred` — needs a fresh-feature `/sdlc review` fixture asserting "no artifact created"; not yet built |
+| E35 | `deferred` — same awaiting-artifact-about-to-be-superseded technique as E37; not yet built |
+| E38 | `deferred` — needs an `impl` alias-normalization assertion; not yet built |
+| E39 | `deferred` — needs template-selection fixture (`_template_plan.md` vs `_template_arch.md`); not yet built |
+| E40 | `deferred` — same as E39, arch branch; needs `## Part Breakdown` assertion; not yet built |
+| E41 | `deferred` — needs a part + bug-bundle spawned from it; not yet built |
+| E42 | `deferred` — needs a zero-parts decomposition fixture; not yet built |
+| E43 | `deferred` — needs a `root`-at-`awaiting_phase: implement` fixture; not yet built |
+| E44 | `deferred` — needs a full zero-parts run asserting the reviewer runs exactly once; not yet built |
+| E45 | `deferred` — needs a `root` mid-impl handoff fixture with no `NN` anywhere; not yet built |
+| E46 | `deferred` — needs an `arch-<feature>.md` seeded with `## Implementation Phases`; not yet built |
 
 ---
 

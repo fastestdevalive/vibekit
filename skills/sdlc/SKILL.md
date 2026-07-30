@@ -198,7 +198,7 @@ stateDiagram-v2
 | **M6** | Mid-flight scope change | New requirement during impl | Small + in-scope → amend plan; else new sub-feature. Never silently widen scope |
 | **M7** | Park / defer | Blocked or deprioritized | Move feature dir to `pending/`; state records `parked_reason` + last completed |
 | **M8** | Post-PR feedback | CI red, or review comments | Same decision as M5/M6 — trivial → fix in place; substantive → bug bundle |
-| **M9** | Scoped invocation | `/sdlc <chain> <feature>`, or a gate stop | Run exactly the chain; stop at its end; set `awaiting_phase` + `awaiting_artifact`; report what would come next but do NOT start it |
+| **M9** | Scoped invocation | `/sdlc <chain> <feature>`, or a gate stop | Run exactly the chain; stop at its end. **Write state before reporting**: mark the finished phase, set `awaiting_phase` + `awaiting_artifact`, then report what would come next but do NOT start it |
 
 - Full per-mode rules (M2-M9 decision tables, canonical prompts): `PHASES.md`
 - Chain parsing, gate semantics, and the pause lifecycle: `GRAMMAR.md`
@@ -253,42 +253,24 @@ stateDiagram-v2
 > Progress lives in the plan checklist, NOT in per-phase state fields. Checklist wins on conflict (see `PHASES.md`).
 
 ```yaml
+# .vibekit/feature-plans/<state>/<feature>/.sdlc-state.yaml — common shape. FULL SCHEMA: `sdlc-state.example.yaml` (canonical)
 feature: auth-flow
 worktree: /home/gb/code/proj/worktrees/wt-1   # guards wrong-worktree writes
-created: 2026-07-25T10:00:00Z
-
-master:
-  prd: complete            # complete | skipped | pending
-  plan: complete           # covers arch-or-plan completion — no separate `arch:` field, no master-level exec state
-
+master: {prd: complete, plan: complete}       # plan covers arch-or-plan completion
 current_subfeature: 03-fix-nav-regressions
-
 subfeatures:
-  # Zero-parts decomposition: master `plan-<feature>.md` executes as one degenerate queue entry —
-  # every existing mechanism (awaiting_*, drain gate, M3 handoff, M4 replan) works unchanged.
-  - id: root
-    origin: planned
-    mode: implementing
-    last_completed: "1.2"
-  - id: 01-data-layer
-    origin: planned         # planned|bug-bundle|requirement-change|refinement
-    mode: done               # planning|implementing|verifying|parked|handoff|cancelled|done
-    commit: a1b2c3d
-  - id: 03-fix-nav-regressions
-    origin: bug-bundle
-    spawned_from: 02-api
-    mode: implementing       # NEVER overwritten by a pause — see awaiting_phase
-    phase_chain: [plan]      # scope of the last invocation; null = default full chain
+  - id: root                # every feature has this entry from creation (M1), even zero-parts
+    origin: planned          # planned|bug-bundle|requirement-change|refinement
+    mode: implementing       # planning|implementing|verifying|parked|handoff|cancelled|done
+    last_completed: "1.2"    # checklist id — resume anchor
     awaiting_phase: plan     # null | prd|plan|implement|verify|review — non-null ⇒ DO NOT ADVANCE
-    awaiting_artifact: ".vibekit/feature-plans/wip/auth-flow/03-fix-nav-regressions/plan-03-fix-nav-regressions.md"
-    superseded_reason: null  # set on M4 replan
-    parked_reason: null      # set on M7
-    last_completed: "2.3"    # checklist id — resume anchor
-    handoff:
-      next_item: "2.4"
-      returned_at: null      # set when the delegate reports done
-      verified_by: null      # parent that re-ran the verify items
+    awaiting_artifact: ".../plan-03-fix-nav-regressions.md"  # null iff awaiting_phase is null
 ```
+
+> **Canonical schema: [`sdlc-state.example.yaml`](../../sdlc-state.example.yaml)** — every
+> field (`spawned_from`, `phase_chain`, `superseded_reason`, `parked_reason`, `handoff.*`,
+> `commit`, ...), its meaning, and whether it is honored or reserved. This block is a subset;
+> it never defines a field the canonical file doesn't.
 
 - `awaiting_phase` and `awaiting_artifact` are **null together or non-null together**; for `implement`, the artifact is the plan file
 - The pause is an **orthogonal field, never a `mode` value** — folding it into the `mode` enum would destroy the prior mode with nothing to restore on `/sdlc continue`

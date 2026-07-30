@@ -1,0 +1,5 @@
+/sdlc review demo
+
+Review plan-01-demo-core.md (in .vibekit/feature-plans/wip/demo/01-core/) against the
+planning skill's rules before we start implementation. Don't implement anything —
+just review the plan and tell me if it's ready.

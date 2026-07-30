@@ -18,10 +18,14 @@ for d in "$F"/*/; do
   if find "$d" -path '*/.feature-plans/*' -print -quit | grep -q .; then
     bad "$id: fixture still uses the retired .feature-plans/ layout"
   fi
-  [[ -d "$d/.vibekit/feature-plans" ]] || bad "$id: no .vibekit/feature-plans tree"
-  # a state file must be where the skill will look for it
-  find "$d/.vibekit/feature-plans" -name '.sdlc-state.yaml' -print -quit | grep -q . \
-    || bad "$id: no .sdlc-state.yaml under .vibekit/feature-plans"
+  if [[ -d "$d/.vibekit" ]]; then
+    [[ -d "$d/.vibekit/feature-plans" ]] || bad "$id: no .vibekit/feature-plans tree"
+    # a state file must be where the skill will look for it
+    find "$d/.vibekit/feature-plans" -name '.sdlc-state.yaml' -print -quit | grep -q . \
+      || bad "$id: no .sdlc-state.yaml under .vibekit/feature-plans"
+  fi
+  # A fixture with no .vibekit/ at all is legitimate for M1 "new feature, nothing exists"
+  # cases (E22-E33 etc.) — there is no state file to check because none should exist yet.
   [[ $FAIL -eq 0 ]] && ok "$id fixture resolves under the current layout"
 done
 

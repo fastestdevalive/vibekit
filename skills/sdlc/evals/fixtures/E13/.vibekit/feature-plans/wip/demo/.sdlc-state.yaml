@@ -1,0 +1,9 @@
+feature: demo
+worktree: PLACEHOLDER
+master: {prd: skipped, plan: complete}
+current_subfeature: 01-core
+subfeatures:
+  - id: 01-core
+    origin: planned
+    mode: done
+    last_completed: "1.3"

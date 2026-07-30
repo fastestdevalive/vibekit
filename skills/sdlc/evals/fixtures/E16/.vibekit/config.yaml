@@ -1,0 +1,5 @@
+sdlc:
+  agents:
+    reviewer:
+      gate: llm
+      max_iterations: 2
