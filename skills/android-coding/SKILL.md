@@ -1,6 +1,6 @@
 ---
 name: android-coding
-description: Android/Kotlin/Compose coding rules — modular architecture, ViewModel scope, Material 3, Compose pitfalls, strings, navigation, network safety, and build hygiene. Layered on top of `guardrails`.
+description: Android/Kotlin/Compose coding rules — modular architecture, ViewModel scope, Material 3, Compose pitfalls, strings, navigation, network safety, and build hygiene. Extends `coding` + `coding-agent-guardrails`.
 version: 0.1.0
 triggers:
   - "android"
@@ -18,22 +18,25 @@ globs:
 
 # Android coding
 
-Android/Kotlin/Compose rules. Apply on every file you touch in an Android project.
+Android/Kotlin/Compose rules — apply on every file you touch in an Android project.
 
 ## 1. Scope & layering
 
-- Assumes the `guardrails` skill is installed. This skill **extends** guardrails — it does not replace its file-size, VCS, or build-warning rules.
-- Where this skill specifies a tighter limit (e.g. file size for Kotlin), this skill wins for the matching file types.
+- **Read the `coding-agent-guardrails` skill first, then the `coding` skill, before applying anything here.** Both are always in force on Android work:
+  - `coding-agent-guardrails` — file size, code organization, VCS discipline, build behavior (applies to every file)
+  - `coding` — error handling, testing, API design, dependency hygiene, config/secrets, logging (applies to source)
+- This skill does not replace either — it adds Android/Kotlin/Compose-specific rules on top
+- Where this skill specifies a tighter limit (e.g. file size for Kotlin), this skill wins for the matching file types
 
 ## 2. File size — Android override
 
-- **Kotlin `*.kt` / `*.kts`: hard ceiling 1,000 lines.** Tighter than guardrails' 1,500 to keep Compose files reviewable and recompositions easy to reason about. (A separate per-method bytecode concern is covered in §13 — line count is only a rough proxy for that.)
+- **Kotlin `*.kt` / `*.kts`: hard ceiling 1,000 lines.** Tighter than `coding-agent-guardrails`' 1,500 to keep Compose files reviewable and recompositions easy to reason about. (A separate per-method bytecode concern is covered in §13 — line count is only a rough proxy for that.)
 - When a ViewModel would exceed the limit, extract pure logic into a companion `<Name>Logic.kt` or extension file in the same package.
 - Repositories: split by domain concern (CRUD, queries, styling, etc.) rather than one monolith.
 
 ## 3. Modular architecture
 
-- Guardrails already covers feature-vs-layer organization and the `components/` / `common/` split. The Android-specific shape on top of that:
+- `coding-agent-guardrails` already covers feature-vs-layer organization and the `components/` / `common/` split. The Android-specific shape on top of that:
 - A feature directory co-locates its Screen and ViewModel: `feature/<name>/<Name>Screen.kt`, `feature/<name>/<Name>ViewModel.kt`.
 - Sub-composables used by one screen live in `feature/<name>/components/`. The screen file should not be a 1,000-line wall of composables.
 - Soft preference: isolate classes that touch Android-specific APIs (`Context`, `PackageManager`, `LocationManager`, `WorkManager`, etc.) behind a small interface in the feature/repository layer. Keeps the surface easy to fake in tests and easier to swap if the project ever moves to Compose Multiplatform. Don't over-engineer — one interface + one Android impl is plenty.
@@ -159,7 +162,7 @@ suspend fun fetchData(): Data? = withContext(Dispatchers.IO) {
 
 - **Never edit `.toml` files** except to add a new library entry. Never change versions of existing libraries — version bumps belong in a dedicated dependency-update change, not bundled into feature work.
 - Never change the Kotlin language version or AGP version. Both touch the whole build graph and have non-obvious blast radius.
-- Build-warning behavior is owned by `guardrails`.
+- Build-warning behavior is owned by `coding-agent-guardrails`.
 
 ## 16. Protobuf
 

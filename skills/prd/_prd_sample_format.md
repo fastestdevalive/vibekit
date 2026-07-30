@@ -1,9 +1,17 @@
+<!--
+RULES — read before writing or implementing:
+1. FORMAT: Bullets, tables, code, diagrams ONLY — no prose paragraphs
+2. REQUIREMENTS: One crisp line each — no verbose descriptions
+3. CHECKLIST: Mark items [x] as you complete them — this is your persistent todo list
+4. READING TIME: Optimize for fast human scanning — if it's hard to skim, rewrite it
+-->
+
 # PRD: [Feature Name]
 
 > One sentence describing the feature and its scope.
 
 **Status:** Draft | Review | Approved | Superseded
-**Technical plan:** `.feature-plans/pending/<slug>.md` _(link once the plan exists)_
+**Technical plan:** `.feature-plans/pending/<feature>/plan-<feature>.md` _(link once the plan exists)_
 
 ---
 
@@ -29,22 +37,18 @@
 
 ### 1. [Primary Feature Area]
 
-One sentence orienting the reader on what this section covers.
-
 | ID | Requirement |
 |----|-------------|
-| R1 | Full sentence describing observable user-facing behavior. Specific enough to be testable. |
-| R2 | Constraint or non-functional requirement (performance, accessibility, gating). |
-| R3 | Edge case or error state that must be handled explicitly. |
+| R1 | User taps [action] → sees [result] within [Nms]. |
+| R2 | Performance / accessibility / gating constraint, one line. |
+| R3 | Edge case or error state, one line. |
 
 ### 2. [Second Feature Area]
 
-One sentence orienting the reader.
-
 | ID | Requirement |
 |----|-------------|
-| R4 | Requirement sentence. |
-| R5 | Requirement sentence. |
+| R4 | Requirement, one line. |
+| R5 | Requirement, one line. |
 
 ### 3. [Back Navigation / State Management] _(include if the feature has multi-step flows)_
 
@@ -59,22 +63,12 @@ One sentence orienting the reader.
 
 ### [Decision area name]
 
-**Option A — [Name] (chosen)**
-Description of the approach. What the user experiences. Key trade-off.
-
-**Option B — [Name]**
-Description of the alternative. Why it was not chosen.
-
-**Decision:** Option A because [concise rationale].
-
----
-
-_Use a table when there are more than two options or multiple attributes to compare:_
-
 | Option | Pros | Cons | Decision |
 |--------|------|------|----------|
-| A — name | Advantage | Disadvantage | ✅ chosen |
-| B — name | Advantage | Disadvantage | ❌ deferred |
+| A — [Name] | Advantage, one line | Disadvantage, one line | ✅ chosen |
+| B — [Name] | Advantage, one line | Disadvantage, one line | ❌ deferred |
+
+**Decision:** Option A because [one-line rationale].
 
 ---
 
@@ -82,9 +76,9 @@ _Use a table when there are more than two options or multiple attributes to comp
 
 _Record every decision made during PRD review. Do not reopen these in the technical plan._
 
-1. **Question?** — **Answer.** Rationale in one sentence.
-2. **Question?** — **Answer.** Rationale in one sentence.
-3. **Question?** — **Answer.** Rationale in one sentence.
+1. **Question?** — **Answer.** One-line rationale.
+2. **Question?** — **Answer.** One-line rationale.
+3. **Question?** — **Answer.** One-line rationale.
 
 ---
 

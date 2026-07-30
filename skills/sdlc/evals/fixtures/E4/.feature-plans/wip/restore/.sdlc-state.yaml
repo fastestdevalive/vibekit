@@ -1,0 +1,9 @@
+feature: restore
+worktree: PLACEHOLDER
+master: {prd: skipped, plan: complete}
+current_subfeature: 01-api
+subfeatures:
+  - id: 01-api
+    origin: planned
+    mode: verifying
+    last_completed: "2.4"

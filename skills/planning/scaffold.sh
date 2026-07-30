@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Scaffold a project for vibekit planning:
 #   .feature-plans/{pending,wip,done}/  ← plan directories + template
-#   AGENTS.md                           ← root agent guide (planning + guardrails)
+#   AGENTS.md                           ← root agent guide (planning + coding-agent-guardrails)
 #   CLAUDE.md                           ← same, for Claude Code
 #
 # Usage: ./scaffold.sh [target-project-dir]
@@ -20,11 +20,24 @@ fi
 
 PLANS_DIR="$TARGET/.feature-plans"
 
-# 1. Create .feature-plans directories
+# 1. Create .feature-plans directories + .gitkeep (git does not track empty dirs)
 mkdir -p "$PLANS_DIR/pending" "$PLANS_DIR/wip" "$PLANS_DIR/done"
+for d in pending wip done; do
+  touch "$PLANS_DIR/$d/.gitkeep"
+done
+echo "wrote  $PLANS_DIR/{pending,wip,done}/.gitkeep"
 
-# 2. Copy planning template + plan-format guide (don't overwrite user customizations)
-for f in _plan_sample_format.md AGENTS.md; do
+# 1b. Gitignore transient screenshots by default (never committed unless opted in)
+GITIGNORE="$PLANS_DIR/.gitignore"
+if [[ -e "$GITIGNORE" ]]; then
+  echo "skip   $GITIGNORE (already exists)"
+else
+  printf '%s\n' '**/screenshots/' > "$GITIGNORE"
+  echo "wrote  $GITIGNORE"
+fi
+
+# 2. Copy planning templates + plan-format guides (don't overwrite user customizations)
+for f in _template_arch.md _template_plan.md FORMAT.md SECTIONS.md; do
   if [[ -e "$PLANS_DIR/$f" ]]; then
     echo "skip   $PLANS_DIR/$f (already exists)"
   else
@@ -45,7 +58,7 @@ if [[ -f "$PRD_SAMPLE" ]]; then
 fi
 
 # 3. Generate root AGENTS.md and CLAUDE.md (project-level agent context)
-#    These reference both the planning and guardrails skills.
+#    These reference both the planning and coding-agent-guardrails skills.
 #    Skip if the file already exists to avoid overwriting project customizations.
 ROOT_AGENT_CONTENT="# Agent guide
 
@@ -55,19 +68,43 @@ ROOT_AGENT_CONTENT="# Agent guide
 PRD  →  Technical Plan  →  Implementation
 \`\`\`
 
-- **PRD** (\`.feature-plans/pending/prd-<slug>.md\`): required for large features (new UX flows, data model changes). Use \`.feature-plans/_prd_sample_format.md\` as the template.
-- **Technical plan** (\`.feature-plans/pending/<slug>.md\`): required for all non-trivial work. Use \`.feature-plans/_plan_sample_format.md\` as the template.
+- **PRD** (\`.feature-plans/pending/<feature>/prd-<feature>.md\`): required for large features (new UX flows, data model changes). Use \`.feature-plans/_prd_sample_format.md\` as the template.
+- **Technical plan** (\`.feature-plans/pending/<feature>/plan-<feature>.md\`): required for all non-trivial work. Use \`.feature-plans/_template_plan.md\` (the default) or \`.feature-plans/_template_arch.md\` (rare — system-level decomposition) as the template.
 - For small changes (bug fixes, single-screen tweaks): skip the PRD.
 
-Plans live in \`.feature-plans/\` (\`pending/\`, \`wip/\`, \`done/\`).
+## Feature-plan directory layout (primary — directory mode)
 
-- Follow format rules in \`.feature-plans/AGENTS.md\`
-- Move plans: \`pending/\` → \`wip/\` when work starts → \`done/\` when complete
+\`\`\`
+.feature-plans/<state>/<feature>/     ← state: pending | wip | done
+  prd-<feature>.md                    ← master PRD (optional)
+  arch-<feature>.md                   ← master arch (rare — only if system-level decomposition is needed)
+  plan-<feature>.md                   ← master plan
+  NN-<subfeature>/
+    plan-<NN>-<feature>-<subfeature>.md
+    screenshots/                      ← transient by default, gitignored
+\`\`\`
+
+- Simple features skip sub-feature dirs — just \`plan-<feature>.md\` at the feature root
+- **Backward compat:** a flat \`.feature-plans/pending/<slug>.md\` file still works for existing plans
+- Follow format rules in \`.feature-plans/FORMAT.md\` and section templates in \`.feature-plans/SECTIONS.md\`
+- Move the whole feature directory: \`pending/\` → \`wip/\` when work starts → \`done/\` when complete
+
+### File naming convention
+
+| Doc | Pattern | Example |
+|-----|---------|---------|
+| Master PRD | \`prd-<feature>.md\` | \`prd-auth-flow.md\` |
+| Master plan | \`plan-<feature>.md\` | \`plan-auth-flow.md\` |
+| Master arch _(rare)_ | \`arch-<feature>.md\` | \`arch-auth-flow.md\` |
+| Sub-feature PRD | \`prd-<NN>-<feature>-<subfeature>.md\` | \`prd-02-auth-flow-api.md\` |
+| Sub-feature plan | \`plan-<NN>-<feature>-<subfeature>.md\` | \`plan-02-auth-flow-api.md\` |
+
+- \`NN\` is assigned once and never renumbered — new sub-features always append
 
 ## File size limits
 
 - **Source files: hard ceiling at 1,500 lines.** Split files that approach this limit before merging.
-- **Agent guide files** (AGENTS.md, CLAUDE.md, GEMINI.md, files under \`agents/\`): max **200 lines**. Split into sub-guides when the limit approaches.
+- **Doc files: cap by when the file loads, not what it is.** Always-loaded (SKILL.md, AGENTS.md, CLAUDE.md, GEMINI.md): max **400 lines**. On-demand companions (FORMAT.md, SECTIONS.md, PHASES.md, GRAMMAR.md, EXAMPLES.md): max **600 lines**. Templates (\`_template_*.md\`): no cap. Split into sub-guides when the limit approaches.
 
 ## Code organization
 
@@ -98,4 +135,15 @@ done
 
 echo
 echo "Done. Scaffolded in: $TARGET"
-echo "Next: copy .feature-plans/_plan_sample_format.md to .feature-plans/pending/<your-slug>.md and start filling it in."
+echo
+echo "Directory layout for a new feature (primary — directory mode):"
+echo "  .feature-plans/pending/<feature>/"
+echo "  ├── prd-<feature>.md                     (optional — master PRD)"
+echo "  ├── arch-<feature>.md                    (rare — master arch, only if system-level decomposition is needed)"
+echo "  ├── plan-<feature>.md                    (master plan)"
+echo "  └── 01-<subfeature>/"
+echo "      └── plan-01-<feature>-<subfeature>.md"
+echo
+echo "Next: mkdir -p .feature-plans/pending/<your-feature> && copy"
+echo "  .feature-plans/_template_plan.md (or _template_arch.md if this feature needs system-level decomposition)"
+echo "  to .feature-plans/pending/<your-feature>/plan-<your-feature>.md and start filling it in."

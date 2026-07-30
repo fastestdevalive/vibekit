@@ -40,16 +40,57 @@ For smaller work (bug fixes, refactors, single-screen changes), skip the PRD and
 
 ## How to use
 
-1. Create a new plan file under `.feature-plans/pending/<slug>.md`
-2. Pick the right template:
-   - **Big feature / system design** → [`_plan_sample_big_feature_design.md`](./_plan_sample_big_feature_design.md) — alternatives, system context, entities, CUJs, API contract, rollout; spawns sub-plans
-   - **Small feature / bug fix / mini-design** → [`_plan_sample_small_feature_bugfix.md`](./_plan_sample_small_feature_bugfix.md) — scoped phases + test verification; may reference a parent big-feature design
-3. Follow the writing rules in [`AGENTS.md`](./AGENTS.md):
+1. Create the feature directory: `.feature-plans/pending/<feature>/` (**primary** — directory mode)
+   - Simple features skip sub-feature dirs — just `.feature-plans/pending/<feature>/plan-<feature>.md`
+   - Sub-features nest: `.feature-plans/pending/<feature>/NN-<sub>/plan-<NN>-<feature>-<sub>.md`
+   - **Backward compat (secondary):** a flat `.feature-plans/pending/<slug>.md` file still works — see Detection rule below
+2. Pick the right template — see [Which template?](#which-template)
+3. Follow the writing rules in [`FORMAT.md`](./FORMAT.md) — read this before writing or implementing:
    - **Bullet points only** — no prose paragraphs
    - File paths + line numbers for every code reference
    - Tables for files-to-modify and risks
    - Phased checklist with **per-phase test verification** (`N.T1`, `N.T2` …)
-4. Move the file to `wip/` when work begins, `done/` when complete
+   - Header block, checklist rules, system boundaries, self-containment bar
+4. Follow the per-section templates in [`SECTIONS.md`](./SECTIONS.md) — what each section of the plan contains, diagram-type table
+5. Move the whole feature directory to `wip/` when work begins, `done/` when complete
+
+## Which template?
+
+- **[`_template_plan.md`](./_template_plan.md)** — the default. Carries the implementation checklist.
+  Use it for any work you will actually execute, however large.
+  It may spawn sub-plans (bug bundles, follow-ups) and still keeps its own checklist.
+
+- **[`_template_arch.md`](./_template_arch.md)** — only when a feature needs system-level decomposition
+  before anything is executable. No implementation phases; its output is parts,
+  each of which is a plan.
+
+- If unsure: use `plan`
+- Most features never need an arch
+
+### File naming convention
+
+| Doc | Pattern | Example |
+|-----|---------|---------|
+| Master PRD | `prd-<feature>.md` | `prd-auth-flow.md` |
+| Master plan | `plan-<feature>.md` | `plan-auth-flow.md` |
+| Master arch _(rare)_ | `arch-<feature>.md` | `arch-auth-flow.md` |
+| Sub-feature PRD | `prd-<NN>-<feature>-<subfeature>.md` | `prd-02-auth-flow-api.md` |
+| Sub-feature plan | `plan-<NN>-<feature>-<subfeature>.md` | `plan-02-auth-flow-api.md` |
+
+- **Feature name in every filename** — fuzzy-find by feature name surfaces every related doc regardless of directory
+- **`NN` in every sub-feature filename** — execution order is visible in flat search results and editor tabs, where the parent directory isn't shown
+- `NN` is assigned once and **never renumbered** — new sub-features always append; a bug bundle found after `03` becomes `04`, never `02.5`
+
+### Detection rule (flat vs directory mode, used on resume)
+
+```
+given <name> under pending|wip|done:
+  <name>/ is a directory  → directory mode; read <name>/.sdlc-state.yaml if present
+  <name>.md is a file     → flat mode; no state file, no sub-features
+  both exist               → prefer directory; warn about the stray flat file
+```
+
+- New features always use directory mode; flat mode is read-only compatibility for existing projects
 
 ## Scaffolding a new project
 

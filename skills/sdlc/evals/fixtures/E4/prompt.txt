@@ -1,0 +1,10 @@
+/sdlc bugs
+
+I tested the restore flow. Four problems:
+- the picker returns a content:// URI we don't handle, so restore silently no-ops
+- back button during restore leaves a half-applied config in the store
+- restoring a v2 backup on v3 crashes instead of showing the version error
+- the progress dialog never dismisses when restore fails
+
+Cluster these by root cause and CREATE the sub-feature directories and plans now —
+consider this pre-approved, do not stop to ask. I don't want four separate plans.

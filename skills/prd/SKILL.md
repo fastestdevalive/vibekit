@@ -33,12 +33,17 @@ Use this skill before writing a technical plan when a feature is large enough to
 PRD  →  Technical Plan  →  Implementation
 ```
 
-1. Create `.feature-plans/pending/prd-<slug>.md` (this skill)
-2. Once the PRD is reviewed and decisions are settled, create `.feature-plans/pending/<slug>.md` (planning skill)
+1. Create `.feature-plans/pending/<feature>/prd-<feature>.md` (this skill) — **directory mode, primary**
+   - Sub-feature PRD (only when the master PRD doesn't cover it): `<feature>/NN-<sub>/prd-<NN>-<feature>-<sub>.md`
+   - **Backward compat:** `.feature-plans/pending/prd-<slug>.md` (flat file) still works for existing projects
+2. Once the PRD is reviewed and decisions are settled, create `.feature-plans/pending/<feature>/plan-<feature>.md` (planning skill)
 3. Link the two files via frontmatter (`prd:` and `plan:` fields)
 
 ## Format rules
 
-Unlike the technical plan, PRDs use **full sentences and prose in requirements** — they describe user-facing behavior, not implementation steps. No file paths. No code references. No bullet-only sections for requirements.
+Read [`FORMAT.md`](./FORMAT.md) before writing — it has the requirement-writing rules and header block.
 
-See `_prd_sample_format.md` for the template.
+- Requirements: **one crisp line each** — no multi-sentence descriptions
+- Requirements describe user-facing behavior, not implementation steps
+- No file paths, no code references
+- See `_prd_sample_format.md` for the template

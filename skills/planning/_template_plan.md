@@ -1,4 +1,12 @@
-# Mini-Design: [Title]
+<!--
+RULES — read before writing or implementing:
+1. FORMAT: Bullets, tables, code, diagrams ONLY — no prose paragraphs
+2. REQUIREMENTS: One crisp line each — no verbose descriptions
+3. CHECKLIST: Mark items [x] as you complete them — this is your persistent todo list
+4. READING TIME: Optimize for fast human scanning — if it's hard to skim, rewrite it
+-->
+
+# Plan: [Title]
 
 > One-line description / scope statement.
 
@@ -6,13 +14,21 @@
 **Branch:** `feat/[branch-name]`
 **Status:** Pending | WIP | Done
 **PRD:** `.feature-plans/pending/prd-<slug>.md` _(link if a PRD was written)_
-**Parent design:** `.feature-plans/pending/design-<slug>.md` _(link if this is a sub-plan of a big-feature design)_
+**Parent:** `arch-<slug>.md` or `plan-<slug>.md` _(only when spawned)_
 
 **Reference files:**
 - Data / schema: `path/to/schema.ext`
 - Core logic: `path/to/Module.ext`
 - UI / entrypoint: `path/to/Entry.ext`
 - Wiring (DI / routing / config): `path/to/wiring.ext`
+
+---
+
+## Superseded _(only present after an M4 replan — omit on first draft)_
+
+| Prior approach | Why it failed | Superseded on |
+|-----------------|---------------|---------------|
+| One-line summary of the old approach | One-line reason | date / commit |
 
 ---
 
@@ -44,7 +60,7 @@
 
 ## Research
 
-Bullet-point findings only. Include file paths + line numbers. No prose.
+- Bullet-point findings only — include file paths + line numbers, no prose
 
 ### [Code path / area name]
 
@@ -63,17 +79,51 @@ Bullet-point findings only. Include file paths + line numbers. No prose.
 
 ---
 
-## Architecture
 
+## Modules & Interfaces
+
+_**Module** = whatever unit this project names in code review — a class, package, service, or file.
+Use the project's own vocabulary, not a generic one._
+
+_List every module this change **creates or modifies**, plus any it **depends on** whose interface
+the implementer must call. Do not inventory the codebase._
+
+| Module | Change | Responsibility | Public interface | Owns |
+|--------|--------|---------------|------------------|------|
+| `NewThing` | **New** | What it does | `method(Input): Result<Output>` | state it owns, or "nothing (pure)" |
+| `ExistingThing` | **Modified** | What changes about it | `existing(X): Y` + `newMethod(Z): W` | unchanged |
+| `Dependency` | Unchanged | Why it appears here | `consume(A): B` — called, not changed | — |
+
+- **Change** is `New` / `Modified` / `Unchanged` — an implementer must not have to guess which they are creating
+- `Unchanged` rows exist only to pin an interface being consumed; drop them if nothing is consumed
+
+---
+
+## Architecture Diagram
+
+_Required when the change crosses a module boundary. Pure single-module change → one line saying so, no diagram._
+
+```mermaid
+flowchart LR
+    UI[Screen] --> VM[ViewModel]
+    VM -->|"save(item)"| Repo[Repository]
+    Repo --> DB[(Store)]
 ```
-[Component A] → [Component B] → [Store / DB]
-                     ↓
-              [Component C] → [UI / Output]
-```
+
+- Name the interface on the edge, not just the arrow
+- Add a second diagram (sequence / state) only when it genuinely helps
 
 ---
 
 ## Design Details
+
+### System Boundaries
+
+_Required if this plan touches more than one layer — see `FORMAT.md` System Boundaries table._
+
+| Boundary | Fields + types | Errors | Source of truth |
+|----------|----------------|--------|-----------------|
+| [Frontend ↔ Backend / Client ↔ DB / Module ↔ Module] | `field: type, ...` | `ERR_CODE — meaning` | who owns it |
 
 ### Critical User Journeys (CUJs)
 
@@ -129,21 +179,33 @@ _(One block per contract — REST endpoints, GraphQL mutations/queries, RPC meth
 
 ### Key Decisions
 
-#### Decision 1: [Short title]
+> Include a code sample whenever the tricky part is the **shape of the code** — an ordering
+> constraint, a lifecycle trap, a pattern that is easy to get subtly wrong. Prose describing a
+> pattern the implementer must then re-derive is where plans leak.
+
+#### Decision 1: [Short title] — *with a snippet, because the pattern IS the decision*
 
 - **Decision:** what was chosen
 - **Rationale:** why (tradeoff / constraint)
-- **Where:** `file.ext:line` — what changes
+- **Where:** `path/to/File.ext:123` — what changes
 
-```
-// optional: critical snippet — only when the code pattern itself is the decision
+```kotlin
+// Restore must be all-or-nothing: a back-press mid-apply previously left a half-written store.
+// The lock is held across the whole apply, and rollback restores the pre-image on ANY failure.
+suspend fun restore(backup: Backup): Result<Unit> = writeLock.withLock {
+    val preImage = store.snapshot()
+    runCatching { backup.entries.forEach { store.apply(it) } }
+        .onFailure { store.restore(preImage) }   // ← the point: rollback, not partial state
+}
 ```
 
-#### Decision 2: [Short title]
+- Say what the snippet is *for* in a comment — a bare snippet makes the reader guess the intent
+
+#### Decision 2: [Short title] — *no snippet needed*
 
 - **Decision:** what was chosen
 - **Rationale:** why (tradeoff / constraint)
-- **Where:** `file.ext:line` — what changes
+- **Where:** `path/to/File.ext:45` — what changes
 
 ---
 
@@ -161,12 +223,25 @@ _(One block per contract — REST endpoints, GraphQL mutations/queries, RPC meth
 
 ---
 
+## Sub-Plan Breakdown _(omit if none spawned)_
+
+This plan spawned the following sub-plans — bug bundles, requirement changes, or refinements found during implementation.
+
+| Sub-plan | Origin | Scope |
+|----------|--------|-------|
+| [`NN-<slug>`](./NN-<slug>/plan-NN-<feature>-<slug>.md) | bug-bundle \| requirement-change \| refinement | one-line scope |
+
+- `NN` is assigned once and never renumbered — new sub-plans always append
+- This plan is not rewritten once a sub-plan is drafted — the sub-plan owns its own checklist
+
+---
+
 ## Implementation Phases
 
-Each phase ends with a **verification block** — the phase is not complete until those tests pass.
-
-Test items use `N.Tn` numbering (`1.T1`, `1.T2`, `2.T1` …) to distinguish them from implementation items.
-Unit tests verify isolated logic; integration tests verify an end-to-end flow or boundary.
+- Each phase ends with a **verification block** — the phase is not complete until those tests pass
+- Test items use `N.Tn` numbering (`1.T1`, `1.T2`, `2.T1` …) to distinguish them from implementation items
+- Unit tests verify isolated logic; integration tests verify an end-to-end flow or boundary
+- Device verification screenshots: save to `<subfeature>/screenshots/<descriptive-name>.png`, embed with `![state](./screenshots/name.png)` — transient by default, gitignored (see `FORMAT.md` Screenshots)
 
 ---
 
