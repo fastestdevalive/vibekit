@@ -55,10 +55,11 @@ Load each one at the phase that needs it — do not write the artifact from memo
 ```yaml
 # .vibekit.yaml — common case. FULL SCHEMA: `.vibekit.example.yaml` (canonical)
 sdlc:
-  reviewer:
-    model: opus        # any model, or ${CLI_DEFAULT}
-    gate: llm          # llm | user | both
-    max_iterations: 2
+  agents:
+    reviewer:
+      model: opus      # any model, or ${CLI_DEFAULT}
+      gate: llm        # llm | user | both
+      max_iterations: 2
 screenshots:
   policy: transient    # transient | permanent
 ```
@@ -319,10 +320,10 @@ mode: auto  (default)
       "vibe-station detected — set spawn.meta_harness to delegate implementers"
   → never delegates on detection alone
 mode: meta-harness
-  → use it for roles marked meta-harness
+  → use it for agents whose `run_in` is `meta-harness`
   → not detected → WARN + fall back to in-harness, continue (never hard-fail)
 mode: in-harness
-  → always in-harness, even if a harness exists; ignores roles overrides
+  → always in-harness, even if a harness exists; ignores every agent's `run_in`
 ```
 
 - **Default is in-harness for every role** — no config always means in-harness

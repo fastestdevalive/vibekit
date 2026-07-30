@@ -6,7 +6,7 @@
 # reproducible across runs; file state is.
 #
 # Usage:
-#   ./run.sh              # run every case that has a fixture
+#   ./run.sh              # run every case that has a fixture dir
 #   ./run.sh E1 E4        # run named cases
 #   DRY=1 ./run.sh E1     # print the prompt + assertions, spawn nothing
 #
@@ -106,7 +106,11 @@ assert_E15() {
 # ---------------------------------------------------------------- dispatch
 
 CASES=("$@")
-[[ ${#CASES[@]} -eq 0 ]] && CASES=(E1 E4 E15)
+if [[ ${#CASES[@]} -eq 0 ]]; then
+  CASES=()
+  for d in "$FIXTURES"/*/; do [[ -d "$d" ]] && CASES+=("$(basename "$d")"); done
+fi
+DECLARED=$(grep -c "^| \*\*E" "$EVALS_DIR/cases.md" 2>/dev/null || echo "?")
 
 [[ "${DRY:-0}" == "1" ]] || need_claude
 
@@ -115,5 +119,5 @@ for id in "${CASES[@]}"; do
 done
 
 echo
-echo "passed=$PASS failed=$FAIL skipped=$SKIP"
+echo "passed=$PASS failed=$FAIL skipped=$SKIP  (of $DECLARED declared cases — fixtures exist for ${#CASES[@]})"
 [[ "$FAIL" -eq 0 ]]

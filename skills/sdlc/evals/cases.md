@@ -94,11 +94,3 @@ and confirm it FAILS.
 
 ---
 
-## Status
-
-- Not yet run against the drafted skill — V1 ships the case definitions; running them requires a live agent session per case (see `README.md` → "Running a Tier B case manually")
-- Track pass/fail per case here once run:
-
-| ID | Last run | Result |
-|----|----------|--------|
-| E1-E46 | — | not yet run |

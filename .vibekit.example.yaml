@@ -31,7 +31,7 @@ sdlc:
 
     # [honored, required when meta_harness: custom]         default: unset
     #   Placeholders: {worktree} {model} {prompt} {prompt_file} {feature} {subfeature}
-    command: "<cmd> --cwd {worktree} --model {model} --prompt-file {prompt}"
+    # command: "<cmd> --cwd {worktree} --model {model} --prompt-file {prompt}"
 
   # ── WHICH subagents exist, and how each behaves ─────────────────────────────
   #   Every agent takes `run_in` (in-harness | meta-harness) and `model`.
@@ -85,17 +85,17 @@ sdlc:
       # [spec] device work needs the parent session's context; tests-only
       #        verification could be delegated
       run_in: in-harness
-      model: ${CLI_DEFAULT}
+      model: opus            # [spec]
 
   # ── Project bootstrap ───────────────────────────────────────────────────────
   setup:
-    # [honored] free-form commands run before implementation      default: []
+    # [spec] free-form commands run before implementation — nothing runs them yet   default: []
     commands: []
       # - git submodule update --init --recursive
 
   # ── Physical device protocol ────────────────────────────────────────────────
   device:
-    # [honored] ask before adb/device access; never seize a shared device   default: true
+    # [spec] the ask-before-device rule is unconditional in PHASES.md; this key is not read   default: true
     ask_before_access: true
 
 # ── Verification screenshots ──────────────────────────────────────────────────
@@ -106,7 +106,7 @@ screenshots:
   #   permanent  committed; requires narrowing .feature-plans/.gitignore deliberately
   policy: transient
 
-  # [honored] relative to the sub-feature directory         default: screenshots/
+  # [spec] PHASES.md hardcodes `screenshots/`; this key is not read yet   default: screenshots/
   path: screenshots/
 
   # [honored] prompt before deleting transient screenshots  default: true

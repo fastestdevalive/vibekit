@@ -13,6 +13,7 @@
 
 ## Reviewer invocation
 
+- Append `sdlc.agents.reviewer.prompt` verbatim to every review request when set
 - Read `sdlc.agents.reviewer.gate` + `.model` first — `user` spawns nothing, `llm` auto-advances when clean, `both` reviews then stops ([`GRAMMAR.md`](./GRAMMAR.md) § Gate semantics)
 - Spawn a reviewer subagent (in-harness, per the runner table — reviewer never delegates)
 - Iterate: feedback → incorporate → re-review, up to `max_iterations` (default 2)
@@ -95,7 +96,7 @@ flowchart LR
 ## Spawn rules (runner)
 
 - Route per the spawn config in `SKILL.md` — reviewer/planner/verifier always in-harness
-- Implementer: in-harness by default, meta-harness only when `agents.implementer.run_in: meta-harness`
+- Implementer: in-harness by default. Delegation needs BOTH `spawn.mode: meta-harness` AND `agents.implementer.run_in: meta-harness` — under the default `mode: auto`, `run_in` is not read at all
 - `mode: auto` + harness detected → print the suggestion **once**, never delegate on detection alone
 - `mode: meta-harness` + harness not found → WARN, fall back to in-harness, continue (never hard-fail)
 - **Runner block generation:** derive the block from the initial prompt + detection signals, then show it to the user for approval before first use — never write it silently
