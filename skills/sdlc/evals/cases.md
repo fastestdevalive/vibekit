@@ -40,7 +40,7 @@
 | **E33** | M9 | New feature, nothing exists | `/sdlc review auth-flow` | Creates **no** artifact; asks what to review |
 | **E34** | — | Sub-feature at `awaiting_phase: review`, review clean | `/sdlc continue` | `awaiting_*` cleared, `mode: done`, feature dir reaches `done/` — the drain is not deadlocked |
 | **E35** | — | Sub-feature at `awaiting_phase: plan` | `/sdlc replan <that sub>` | STOPS and asks; does NOT silently supersede the awaited artifact |
-| **E36** | — | Nothing awaiting | `/sdlc continue` | Says nothing is awaiting, falls through to normal M2 resume |
+| **E36** | — | Nothing awaiting | `/sdlc continue` | Falls through to normal M2 resume and advances; `continue` dispatches as a **subcommand**, never parsed as a feature name; no pause invented |
 | **E37** | — | Fresh session, state has `awaiting_phase` set | `/sdlc <feature>` | Restates the awaited artifact and asks; does NOT auto-advance |
 | **E38** | — | Any | `/sdlc impl auth-flow` | Alias normalizes to `implement` in `awaiting_phase`; not treated as a feature name |
 | **E39** | — | Large multi-layer feature, no system-level decomposition actually needed | `/sdlc <feature>` | Agent picks `_template_plan.md` (not arch); written doc has `## Implementation Phases`; selector is never invoked by size alone |
@@ -73,14 +73,20 @@ A correct refusal and a broken no-op leave identical file trees. Those cases nee
 content assertion on the agent's output — presence of specific factual strings (e.g. both
 conflicting paths), never a judgement about wording.
 
-**3. Assert the invariant, not the author's expected answer.**
+**3. A seeded precondition tests only the READ path.**
+E37 seeds `awaiting_*` and asserts the skill honors it. It passed continuously while the
+skill never *wrote* `awaiting_*` at all — the write path was broken and invisible. When a
+fixture seeds the state a case depends on, that case cannot vouch for whatever produces
+that state. Pair it with a case that starts from nothing (E22 does this for E37).
+
+**4. Assert the invariant, not the author's expected answer.**
 E4 originally asserted `<=2` sub-features for 4 bugs, based on how *the eval author* would have
 grouped them. A live run produced 3 defensible clusters (URI-handling, error-path, atomicity are
 genuinely distinct root causes) and the eval failed a correct implementation. The real invariant
 is `n < bug_count` — clustering happened. How bugs partition is a judgement call; encoding one
 answer makes the eval flaky against equally-valid alternatives.
 
-**4. Every case needs a positive assertion.**
+**5. Every case needs a positive assertion.**
 `file unchanged` + `item still [x]` both pass when the agent does nothing. E1 passed vacuously
 until a forward-progress assertion was added. Mutation-test each case: seed a do-nothing prompt
 and confirm it FAILS.
@@ -99,10 +105,10 @@ a specific, named reason the technique bag doesn't cover it.
 | E13 | `fixtured` — checklist-wins-over-state + output-content mismatch flag; mutation-tested |
 | E14 | `fixtured` — re-verify-don't-trust-`[x]`, `verified_by` must be non-null (not just present); mutation-tested |
 | E16 | `fixtured` — escalation choice asserted via output content (`continue` + `pause`); mutation-tested |
-| E22 | `fixtured` — M1 "nothing exists yet" fixture (no pre-existing `.vibekit/`); mutation-tested |
+| E22 | `fixtured` — **found a live bug**: chain end stopped without persisting `awaiting_*`, making the pause conversational only. Fixed in `PHASES.md` (write state, then report); re-verified |
 | E34 | `fixtured` — the drain-deadlock regression case; asserts the feature dir actually reaches `done/`; mutation-tested |
-| E36 | `fixtured` — output-content ("nothing awaiting") + forward-progress assertion; mutation-tested |
-| E37 | `fixtured` — hybrid, output must name the awaited artifact; mutation-tested |
+| E36 | `fixtured` — **invariant-based**: forward progress + `continue` not parsed as a feature name + no pause invented. An earlier version demanded the phrase "nothing is awaiting" and **failed a correct implementation** — the same trap as E4 |
+| E37 | `fixtured` — **READ path only**: the fixture *seeds* `awaiting_*`, so it proves the skill honors a pause, not that it writes one. E22 covers the write path. E37 passed while the write path was broken — do not read it as coverage of both |
 | E2 | `deferred` — same prompt-narration technique as E14/E16 applies; not yet built |
 | E3 | `deferred` — same technique as E2; not yet built |
 | E5 | `deferred` — needs a seeded "approach proven wrong" narrative + `## Superseded` table assertion; not yet built |
