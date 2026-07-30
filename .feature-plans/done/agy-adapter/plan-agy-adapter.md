@@ -12,7 +12,7 @@ RULES — read before writing or implementing:
 
 **Issue:** agy-adapter
 **Branch:** `upgrade-to-sdlc-nfeaturegrouping-jul26` (current)
-**Status:** WIP
+**Status:** Done — closed 2026-07-30
 **PRD:** none — small feature, PRD skipped per SDLC feature-size gate
 
 **Reference files:**

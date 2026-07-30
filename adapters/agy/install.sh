@@ -32,6 +32,18 @@ install_one() {
     return 1
   fi
 
+  # Sync, don't merge: a file renamed or removed in vibekit must not linger here.
+  # A stale companion would sit beside its replacement and hand the agent two rule sets.
+  if [[ -d "$dest" ]]; then
+    for old in "$dest"/*; do
+      [[ -e "$old" ]] || continue
+      oldbase="$(basename "$old")"
+      if [[ ! -e "$src/$oldbase" ]]; then
+        rm -rf "$old"; echo "removed stale $dest/$oldbase"
+      fi
+    done
+  fi
+
   mkdir -p "$dest"
 
   # Copy all files, including SKILL.md — but not maintainer-only / non-shipping entries.

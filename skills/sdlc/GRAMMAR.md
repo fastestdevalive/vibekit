@@ -74,7 +74,7 @@ flowchart TD
 
 ## Gate semantics
 
-- `sdlc.reviewer.gate` is standing policy; the chain is per-invocation scope — the two are orthogonal
+- `sdlc.agents.reviewer.gate` is standing policy; the chain is per-invocation scope — the two are orthogonal
 - Default `llm` reproduces today's behavior exactly
 
 | `gate` | Reviewer subagent | Stops for human | `max_iterations` applies | Reviewer-unavailable fallback |

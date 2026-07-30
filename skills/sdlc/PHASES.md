@@ -13,10 +13,10 @@
 
 ## Reviewer invocation
 
-- Read `sdlc.reviewer.gate` + `.model` first — `user` spawns nothing, `llm` auto-advances when clean, `both` reviews then stops ([`GRAMMAR.md`](./GRAMMAR.md) § Gate semantics)
+- Read `sdlc.agents.reviewer.gate` + `.model` first — `user` spawns nothing, `llm` auto-advances when clean, `both` reviews then stops ([`GRAMMAR.md`](./GRAMMAR.md) § Gate semantics)
 - Spawn a reviewer subagent (in-harness, per the runner table — reviewer never delegates)
-- Iterate: feedback → incorporate → re-review, up to `max_iterations` (default 3)
-- On exhaustion: escalate — "Reviewer rejected 3×. (1) continue anyway (2) pause for manual review"
+- Iterate: feedback → incorporate → re-review, up to `max_iterations` (default 2)
+- On exhaustion: escalate — "Reviewer rejected 2×. (1) continue anyway (2) pause for manual review"
 - Reviewer unavailable under `llm`/`both` → warn, continue, never hard-fail; under `user` no reviewer is spawned so the human stop still holds
 - **Self-containment check:** reviewer asks "could haiku implement this cold?" — Self-containment bar, `planning` skill → `FORMAT.md`
 
@@ -94,8 +94,8 @@ flowchart LR
 
 ## Spawn rules (runner)
 
-- Route per the runner config in `SKILL.md` — reviewer/planner/verifier always in-harness
-- Implementer: in-harness by default, meta-harness only when `roles.implementer: meta-harness`
+- Route per the spawn config in `SKILL.md` — reviewer/planner/verifier always in-harness
+- Implementer: in-harness by default, meta-harness only when `agents.implementer.run_in: meta-harness`
 - `mode: auto` + harness detected → print the suggestion **once**, never delegate on detection alone
 - `mode: meta-harness` + harness not found → WARN, fall back to in-harness, continue (never hard-fail)
 - **Runner block generation:** derive the block from the initial prompt + detection signals, then show it to the user for approval before first use — never write it silently

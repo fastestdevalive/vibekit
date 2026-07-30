@@ -6,7 +6,7 @@ code fence, bullet/numbered list item, or heading — i.e. a prose paragraph,
 which vibekit docs ban (skills/planning/FORMAT.md "Format rules — banned").
 
 Usage: python3 skills/sdlc/evals/prose-lint.py [path ...]
-  Defaults to skills/ and .vibekit.yaml.example when no paths given.
+  Defaults to skills/ and .vibekit.example.yaml when no paths given.
   Exits 1 if any violation is found.
 """
 from __future__ import annotations
@@ -58,7 +58,7 @@ def lint_file(path: Path) -> list[tuple[int, str]]:
 
 def main(argv: list[str]) -> int:
     repo_root = Path(__file__).resolve().parents[3]
-    targets = [Path(p) for p in argv] or [repo_root / "skills", repo_root / ".vibekit.yaml.example"]
+    targets = [Path(p) for p in argv] or [repo_root / "skills", repo_root / ".vibekit.example.yaml"]
 
     files: list[Path] = []
     for t in targets:

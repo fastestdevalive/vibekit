@@ -1,0 +1,113 @@
+# .vibekit.yaml — CANONICAL SCHEMA and copyable example.
+#
+# Single source of truth for vibekit configuration. Every field is listed here with its
+# default, allowed values, and whether it is honored today. Docs elsewhere show subsets
+# and point back here; they never redefine a field.
+#
+# Copy to `.vibekit.yaml` at your repo root and delete what you don't need.
+# No file present → every value below applies as its default.
+# Committed, not gitignored — config travels with the branch to every worktree.
+#
+# Legend:
+#   [honored] the skill acts on it today
+#   [spec]    documented and reserved, NOT acted on yet — setting it changes nothing
+
+sdlc:
+
+  # ── HOW subagents are spawned (mechanism, not per-agent) ────────────────────
+  spawn:
+
+    # [honored] auto | meta-harness | in-harness            default: auto
+    #   auto          everything in-harness; if a meta-harness is detected, print ONE
+    #                 suggestion line — never delegate on detection alone
+    #   meta-harness  honor each agent's run_in; if the harness is absent, warn and
+    #                 fall back to in-harness (never hard-fail)
+    #   in-harness    force everything in-harness, ignoring every agent's run_in
+    mode: auto
+
+    # [honored] null | agent-orchestrator | vibe-station | custom      default: null
+    #   null = no meta-harness. Delegation is always opt-in, never inferred.
+    meta_harness: null
+
+    # [honored, required when meta_harness: custom]         default: unset
+    #   Placeholders: {worktree} {model} {prompt} {prompt_file} {feature} {subfeature}
+    command: "<cmd> --cwd {worktree} --model {model} --prompt-file {prompt}"
+
+  # ── WHICH subagents exist, and how each behaves ─────────────────────────────
+  #   Every agent takes `run_in` (in-harness | meta-harness) and `model`.
+  #   Agent-specific settings are listed under the agent that owns them.
+  agents:
+
+    # Writes the PRD and the plan.
+    planner:
+      # [spec] delegating breaks interactive PRD/plan iteration; safe only for
+      #        one-shot generation where you are not iterating turn by turn
+      run_in: in-harness
+      # [spec] falls back to the reviewer's model when unset
+      model: opus
+
+    # Reviews each artifact at its gate.
+    reviewer:
+      # [spec] read-only and short-lived; delegation adds latency for little gain
+      run_in: in-harness
+
+      # [honored] any model name, or ${CLI_DEFAULT}         default: opus
+      #   ${CLI_DEFAULT} resolves per CLI (Claude Code → opus, Cursor → claude-sonnet,
+      #   Gemini → gemini-3.5-pro). Unresolvable → warn, use the CLI's default agent.
+      #   One model reviews EVERY gate; per-gate models are not supported yet.
+      model: opus
+
+      # [honored] llm | user | both                         default: llm
+      #   llm   reviewer subagent runs; auto-advance when clean
+      #   user  no reviewer at all; stop and wait for you
+      #   both  reviewer runs, then still stops for you
+      #   The chain end always stops, whatever this is set to.
+      gate: llm
+
+      # [honored] max review cycles before escalating       default: 2
+      #   On exhaustion: "Reviewer rejected 2x. (1) continue anyway (2) pause for manual review"
+      max_iterations: 2
+
+      # [honored] appended to every review request          default: unset
+      prompt: |
+        Flag missing test coverage and undefined cross-layer contracts.
+
+    # Executes a plan's implementation checklist.
+    implementer:
+      # [honored] the agent delegation actually helps: long-running, writes source,
+      #           survives the parent session dying
+      run_in: in-harness
+      # [spec] a cheaper model is often enough when the plan is self-contained
+      model: ${CLI_DEFAULT}
+
+    # Runs the plan's verify items and drives the device.
+    verifier:
+      # [spec] device work needs the parent session's context; tests-only
+      #        verification could be delegated
+      run_in: in-harness
+      model: ${CLI_DEFAULT}
+
+  # ── Project bootstrap ───────────────────────────────────────────────────────
+  setup:
+    # [honored] free-form commands run before implementation      default: []
+    commands: []
+      # - git submodule update --init --recursive
+
+  # ── Physical device protocol ────────────────────────────────────────────────
+  device:
+    # [honored] ask before adb/device access; never seize a shared device   default: true
+    ask_before_access: true
+
+# ── Verification screenshots ──────────────────────────────────────────────────
+screenshots:
+
+  # [honored] transient | permanent                         default: transient
+  #   transient  gitignored; deleted after confirmation before commit
+  #   permanent  committed; requires narrowing .feature-plans/.gitignore deliberately
+  policy: transient
+
+  # [honored] relative to the sub-feature directory         default: screenshots/
+  path: screenshots/
+
+  # [honored] prompt before deleting transient screenshots  default: true
+  confirm_cleanup: true
