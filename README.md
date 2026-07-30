@@ -99,7 +99,7 @@ triggers:
   - "plan a feature"
   - "/plan"
 globs:
-  - ".feature-plans/**"
+  - ".vibekit/feature-plans/**"
 ---
 ```
 
@@ -138,7 +138,7 @@ cd vibekit
 Then bootstrap a project:
 
 ```bash
-# Creates .feature-plans/{pending,wip,done}/, PRD + plan templates, AGENTS.md, CLAUDE.md
+# Creates .vibekit/feature-plans/{pending,wip,done}/, PRD + plan templates, AGENTS.md, CLAUDE.md
 ./skills/planning/scaffold.sh /path/to/your/project
 ```
 
@@ -147,7 +147,7 @@ Then bootstrap a project:
 ## Feature-plan directory layout
 
 ```
-.feature-plans/<state>/<feature>/     ← state: pending | wip | done
+.vibekit/feature-plans/<state>/<feature>/     ← state: pending | wip | done
   prd-<feature>.md                    ← master PRD (optional)
   arch-<feature>.md                   ← master arch (rare — only if system-level decomposition is needed)
   plan-<feature>.md                   ← master plan
@@ -164,14 +164,14 @@ Then bootstrap a project:
 ## Reports directory layout
 
 ```
-.reports/
+.vibekit/reports/
   YYYY-MM-DD-<slug>.md                  ← flat report, no screenshots
   YYYY-MM-DD-<slug>/
     report.md
     screenshots/                        ← gitignored unless permanent
 ```
 
-- Not under `.feature-plans/` — a report is a dated snapshot, not a plan with a lifecycle
+- Not under `.vibekit/feature-plans/` — a report is a dated snapshot, not a plan with a lifecycle
 - Never edited in place — superseding a report means writing a new dated one
 
 ---

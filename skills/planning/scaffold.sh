@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Scaffold a project for vibekit planning:
-#   .feature-plans/{pending,wip,done}/  ← plan directories + template
-#   AGENTS.md                           ← root agent guide (planning + coding-agent-guardrails)
-#   CLAUDE.md                           ← same, for Claude Code
+#   .vibekit/feature-plans/{pending,wip,done}/  ← plan directories + template
+#   AGENTS.md                                   ← root agent guide (planning + coding-agent-guardrails)
+#   CLAUDE.md                                   ← same, for Claude Code
 #
 # Usage: ./scaffold.sh [target-project-dir]
 #   target-project-dir defaults to the current directory.
@@ -18,21 +18,21 @@ if [[ ! -d "$TARGET" ]]; then
   exit 1
 fi
 
-PLANS_DIR="$TARGET/.feature-plans"
+PLANS_DIR="$TARGET/.vibekit/feature-plans"
 
-# 1. Create .feature-plans directories + .gitkeep (git does not track empty dirs)
+# 1. Create .vibekit/feature-plans directories + .gitkeep (git does not track empty dirs)
 mkdir -p "$PLANS_DIR/pending" "$PLANS_DIR/wip" "$PLANS_DIR/done"
 for d in pending wip done; do
   touch "$PLANS_DIR/$d/.gitkeep"
 done
 echo "wrote  $PLANS_DIR/{pending,wip,done}/.gitkeep"
 
-# 1b. Gitignore transient screenshots by default (never committed unless opted in)
-GITIGNORE="$PLANS_DIR/.gitignore"
+# 1b. Gitignore transient screenshots + local config by default (never committed unless opted in)
+GITIGNORE="$TARGET/.vibekit/.gitignore"
 if [[ -e "$GITIGNORE" ]]; then
   echo "skip   $GITIGNORE (already exists)"
 else
-  printf '%s\n' '**/screenshots/' > "$GITIGNORE"
+  printf '%s\n' 'config.yaml' '**/screenshots/' > "$GITIGNORE"
   echo "wrote  $GITIGNORE"
 fi
 
@@ -46,7 +46,7 @@ for f in _template_arch.md _template_plan.md FORMAT.md SECTIONS.md; do
   fi
 done
 
-# 3. Copy PRD template into .feature-plans/ (don't overwrite user customizations)
+# 3. Copy PRD template into .vibekit/feature-plans/ (don't overwrite user customizations)
 PRD_SAMPLE="$REPO_ROOT/skills/prd/_prd_sample_format.md"
 if [[ -f "$PRD_SAMPLE" ]]; then
   if [[ -e "$PLANS_DIR/_prd_sample_format.md" ]]; then
@@ -68,14 +68,14 @@ ROOT_AGENT_CONTENT="# Agent guide
 PRD  →  Technical Plan  →  Implementation
 \`\`\`
 
-- **PRD** (\`.feature-plans/pending/<feature>/prd-<feature>.md\`): required for large features (new UX flows, data model changes). Use \`.feature-plans/_prd_sample_format.md\` as the template.
-- **Technical plan** (\`.feature-plans/pending/<feature>/plan-<feature>.md\`): required for all non-trivial work. Use \`.feature-plans/_template_plan.md\` (the default) or \`.feature-plans/_template_arch.md\` (rare — system-level decomposition) as the template.
+- **PRD** (\`.vibekit/feature-plans/pending/<feature>/prd-<feature>.md\`): required for large features (new UX flows, data model changes). Use \`.vibekit/feature-plans/_prd_sample_format.md\` as the template.
+- **Technical plan** (\`.vibekit/feature-plans/pending/<feature>/plan-<feature>.md\`): required for all non-trivial work. Use \`.vibekit/feature-plans/_template_plan.md\` (the default) or \`.vibekit/feature-plans/_template_arch.md\` (rare — system-level decomposition) as the template.
 - For small changes (bug fixes, single-screen tweaks): skip the PRD.
 
 ## Feature-plan directory layout (primary — directory mode)
 
 \`\`\`
-.feature-plans/<state>/<feature>/     ← state: pending | wip | done
+.vibekit/feature-plans/<state>/<feature>/     ← state: pending | wip | done
   prd-<feature>.md                    ← master PRD (optional)
   arch-<feature>.md                   ← master arch (rare — only if system-level decomposition is needed)
   plan-<feature>.md                   ← master plan
@@ -85,8 +85,8 @@ PRD  →  Technical Plan  →  Implementation
 \`\`\`
 
 - Simple features skip sub-feature dirs — just \`plan-<feature>.md\` at the feature root
-- **Backward compat:** a flat \`.feature-plans/pending/<slug>.md\` file still works for existing plans
-- Follow format rules in \`.feature-plans/FORMAT.md\` and section templates in \`.feature-plans/SECTIONS.md\`
+- **Backward compat:** a flat \`.vibekit/feature-plans/pending/<slug>.md\` file still works for existing plans
+- Follow format rules in \`.vibekit/feature-plans/FORMAT.md\` and section templates in \`.vibekit/feature-plans/SECTIONS.md\`
 - Move the whole feature directory: \`pending/\` → \`wip/\` when work starts → \`done/\` when complete
 
 ### File naming convention
@@ -137,13 +137,13 @@ echo
 echo "Done. Scaffolded in: $TARGET"
 echo
 echo "Directory layout for a new feature (primary — directory mode):"
-echo "  .feature-plans/pending/<feature>/"
+echo "  .vibekit/feature-plans/pending/<feature>/"
 echo "  ├── prd-<feature>.md                     (optional — master PRD)"
 echo "  ├── arch-<feature>.md                    (rare — master arch, only if system-level decomposition is needed)"
 echo "  ├── plan-<feature>.md                    (master plan)"
 echo "  └── 01-<subfeature>/"
 echo "      └── plan-01-<feature>-<subfeature>.md"
 echo
-echo "Next: mkdir -p .feature-plans/pending/<your-feature> && copy"
-echo "  .feature-plans/_template_plan.md (or _template_arch.md if this feature needs system-level decomposition)"
-echo "  to .feature-plans/pending/<your-feature>/plan-<your-feature>.md and start filling it in."
+echo "Next: mkdir -p .vibekit/feature-plans/pending/<your-feature> && copy"
+echo "  .vibekit/feature-plans/_template_plan.md (or _template_arch.md if this feature needs system-level decomposition)"
+echo "  to .vibekit/feature-plans/pending/<your-feature>/plan-<your-feature>.md and start filling it in."

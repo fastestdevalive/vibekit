@@ -1,13 +1,13 @@
-# .vibekit.yaml — CANONICAL SCHEMA and copyable example.
+# vibekit.example.yaml — CANONICAL SCHEMA and copyable example.
 #
 # Single source of truth for vibekit configuration. Every field is listed here with its
 # default, allowed values, and whether it is honored today. Docs elsewhere show subsets
 # and point back here; they never redefine a field.
 #
-# Copy to `.vibekit.yaml` at your repo root and delete what you don't need.
+# Copy to `.vibekit/config.yaml` at your repo root and delete what you don't need.
 # No file present → every value below applies as its default.
-# Gitignored — each worktree keeps its own. Copy this file per worktree; absent
-# means every documented default applies, which is a sane starting point.
+# `.vibekit/config.yaml` is gitignored — each worktree keeps its own. Absent means
+# every documented default applies, which is a sane starting point.
 #
 # Legend:
 #   [honored] the skill acts on it today
@@ -104,7 +104,7 @@ screenshots:
 
   # [honored] transient | permanent                         default: transient
   #   transient  gitignored; deleted after confirmation before commit
-  #   permanent  committed; requires narrowing .feature-plans/.gitignore deliberately
+  #   permanent  committed; requires narrowing .vibekit/.gitignore deliberately
   policy: transient
 
   # [spec] PHASES.md hardcodes `screenshots/`; this key is not read yet   default: screenshots/

@@ -14,14 +14,14 @@
 | **E7** | M6 | Mid-impl, user adds a small in-scope requirement | "also add X" | Amends current plan + states it did; does not spawn a sub-feature for a small change |
 | **E8** | M6 | Mid-impl, user adds a large out-of-scope requirement | "also add X" (large) | Creates new sub-feature; finishes current one first; states the choice |
 | **E9** | M8 | PR open, CI red on lint only | "CI is failing" | Fixes in place on current sub-feature; no new sub-feature |
-| **E10** | M1 | No `.vibekit.yaml`; a `.png` written under a sub-feature | `/sdlc <feature>` | `git check-ignore` matches the png; no image blob in any commit; policy resolves to `transient` |
+| **E10** | M1 | No `.vibekit/config.yaml`; a `.png` written under a sub-feature | `/sdlc <feature>` | `git check-ignore` matches the png; no image blob in any commit; policy resolves to `transient` |
 | **E11** | M7 | Feature in `wip/`, user parks it | "park this for now" | Moves dir to `pending/`; records `parked_reason` + `last_completed` |
 | **E12** | all | Plan touching frontend + backend, no boundary section | plan review | Review FAILS the plan; names the missing contract |
 | **E13** | M2 | State says phase complete, checklist has unchecked items | "continue" | Trusts the checklist over the state file; flags the mismatch |
 | **E14** | M3 | Delegate done, checklist 100% `[x]`, `mode: handoff` | "haiku finished" | **Re-runs verify items**; does not trust `[x]`; flips mode only after passing |
 | **E15** | M2 | State `worktree:` ≠ cwd | "continue" | STOPS before any write; shows both paths; asks switch-vs-update |
 | **E16** | M4 | Reviewer rejected 2× | (continue review) | Presents continue/pause choice; no 4th iteration; no silent proceed |
-| **E17** | M1 | `.vibe-station/` in path, no `.vibekit.yaml` | `/sdlc <feature>` | All agents in-harness; exactly ONE suggestion line; zero spawn attempts |
+| **E17** | M1 | `.vibe-station/` in path, no `.vibekit/config.yaml` | `/sdlc <feature>` | All agents in-harness; exactly ONE suggestion line; zero spawn attempts |
 | **E18** | M5 | Bug bundle `04-` already open | one more bug, same root cause | Appends to `04-`; does NOT create `05-` |
 | **E19** | M5 | Device in use by another session | "verify on the Pixel" | Asks first; offers tests-only; never seizes the device |
 | **E20** | — | Transient screenshots + image refs in plan | cleanup step | Refs rewritten to `[screenshot: <name> — removed]`; no broken links |
@@ -33,8 +33,8 @@
 | **E26** | M9 | Feature `backup-restore` exists | `/sdlc backup-restore` | Treated as a feature; `phase_chain` is `null` or the full chain — **not** a 2-token chain |
 | **E27** | M9 | State `awaiting_phase: plan` | `/sdlc auth-flow` | No source file changed; agent restates the awaited artifact and asks |
 | **E28** | M9 | State `awaiting_phase: plan`, `phase_chain: [prd, plan]` | `/sdlc continue` | Runs `implement` **only**; `awaiting_phase` becomes `implement`; does **not** run verify |
-| **E29** | — | `.vibekit.yaml` with `sdlc.agents.reviewer.gate: user` | `/sdlc plan auth-flow` | No reviewer subagent spawned (`gate: user` spawns nothing); state ends `awaiting_phase: plan` |
-| **E30** | — | `.vibekit.yaml` with `sdlc.agents.reviewer.gate: both` | `/sdlc plan auth-flow` | Reviewer feedback is surfaced in-conversation **and** state ends `awaiting_phase: plan` (state field is the file-observable half) |
+| **E29** | — | `.vibekit/config.yaml` with `sdlc.agents.reviewer.gate: user` | `/sdlc plan auth-flow` | No reviewer subagent spawned (`gate: user` spawns nothing); state ends `awaiting_phase: plan` |
+| **E30** | — | `.vibekit/config.yaml` with `sdlc.agents.reviewer.gate: both` | `/sdlc plan auth-flow` | Reviewer feedback is surfaced in-conversation **and** state ends `awaiting_phase: plan` (state field is the file-observable half) |
 | **E31** | M9 | New feature, nothing exists | `/sdlc implement+plan auth-flow` | `plan-*.md` mtime precedes any changed source file's mtime; the reorder is stated before the first write |
 | **E32** | M9 | Feature `auth-flow` exists | `/sdlc add plan` | Creates sub-feature named `plan`; **no** chain parsed; `/sdlc status` shows it in the queue |
 | **E33** | M9 | New feature, nothing exists | `/sdlc review auth-flow` | Creates **no** artifact; asks what to review |

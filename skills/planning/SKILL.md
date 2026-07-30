@@ -8,7 +8,7 @@ triggers:
   - "write a technical plan"
   - "/plan"
 globs:
-  - ".feature-plans/**"
+  - ".vibekit/feature-plans/**"
 ---
 
 # Planning skill
@@ -40,10 +40,10 @@ For smaller work (bug fixes, refactors, single-screen changes), skip the PRD and
 
 ## How to use
 
-1. Create the feature directory: `.feature-plans/pending/<feature>/` (**primary** — directory mode)
-   - Simple features skip sub-feature dirs — just `.feature-plans/pending/<feature>/plan-<feature>.md`
-   - Sub-features nest: `.feature-plans/pending/<feature>/NN-<sub>/plan-<NN>-<feature>-<sub>.md`
-   - **Backward compat (secondary):** a flat `.feature-plans/pending/<slug>.md` file still works — see Detection rule below
+1. Create the feature directory: `.vibekit/feature-plans/pending/<feature>/` (**primary** — directory mode)
+   - Simple features skip sub-feature dirs — just `.vibekit/feature-plans/pending/<feature>/plan-<feature>.md`
+   - Sub-features nest: `.vibekit/feature-plans/pending/<feature>/NN-<sub>/plan-<NN>-<feature>-<sub>.md`
+   - **Backward compat (secondary):** a flat `.vibekit/feature-plans/pending/<slug>.md` file still works — see Detection rule below
 2. Pick the right template — see [Which template?](#which-template)
 3. Follow the writing rules in [`FORMAT.md`](./FORMAT.md) — read this before writing or implementing:
    - **Bullet points only** — no prose paragraphs
@@ -98,4 +98,4 @@ given <name> under pending|wip|done:
 ./scaffold.sh /path/to/project
 ```
 
-This creates `.feature-plans/{pending,wip,done}/` and copies the template + agent guide into the target project.
+This creates `.vibekit/feature-plans/{pending,wip,done}/` and copies the template + agent guide into the target project.

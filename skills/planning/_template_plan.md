@@ -13,7 +13,7 @@ RULES — read before writing or implementing:
 **Issue:** [issue-slug]
 **Branch:** `feat/[branch-name]`
 **Status:** Pending | WIP | Done
-**PRD:** `.feature-plans/pending/prd-<slug>.md` _(link if a PRD was written)_
+**PRD:** `.vibekit/feature-plans/pending/prd-<slug>.md` _(link if a PRD was written)_
 **Parent:** `arch-<slug>.md` or `plan-<slug>.md` _(only when spawned)_
 
 **Reference files:**

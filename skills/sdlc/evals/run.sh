@@ -55,7 +55,7 @@ run_case() {
 
 # E1 — resume must start at the first unchecked item and not redo completed work
 assert_E1() {
-  local w="$1" plan; plan="$(find "$w/.feature-plans" -name 'plan-*.md' | head -1)"
+  local w="$1" plan; plan="$(find "$w/.vibekit/feature-plans" -name 'plan-*.md' | head -1)"
   [[ -f "$plan" ]] || { echo "  no plan file" >&2; return 1; }
   # items 1.1-1.3 must remain [x]; nothing that was [x] may have been unchecked
   grep -qE '^\- \[x\] \*\*1\.1\*\*' "$plan" || { echo "  1.1 no longer [x]" >&2; return 1; }
@@ -77,11 +77,11 @@ assert_E1() {
 BUG_COUNT=4
 assert_E4() {
   local w="$1" n
-  n="$(find "$w/.feature-plans" -maxdepth 3 -type d -name '0[2-9]-*' | wc -l)"
+  n="$(find "$w/.vibekit/feature-plans" -maxdepth 3 -type d -name '0[2-9]-*' | wc -l)"
   [[ "$n" -ge 1 ]] || { echo "  no bug-bundle sub-feature created" >&2; return 1; }
   [[ "$n" -lt "$BUG_COUNT" ]] || { echo "  created $n sub-features for $BUG_COUNT bugs — no clustering" >&2; return 1; }
-  grep -rq "origin: bug-bundle" "$w/.feature-plans" || { echo "  origin: bug-bundle not set" >&2; return 1; }
-  grep -rq "spawned_from" "$w/.feature-plans" || { echo "  spawned_from not set" >&2; return 1; }
+  grep -rq "origin: bug-bundle" "$w/.vibekit/feature-plans" || { echo "  origin: bug-bundle not set" >&2; return 1; }
+  grep -rq "spawned_from" "$w/.vibekit/feature-plans" || { echo "  spawned_from not set" >&2; return 1; }
   return 0
 }
 

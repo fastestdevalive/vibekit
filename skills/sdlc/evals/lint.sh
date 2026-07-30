@@ -63,17 +63,32 @@ else
 fi
 
 # 5. Stale template ref
-if grep -rn "_plan_sample_format.md" . --include="*" 2>/dev/null | grep -v "^./.feature-plans/" | grep -v "^./.git/" | grep -v "^./skills/sdlc/evals/lint.sh" | grep -q .; then
+if grep -rn "_plan_sample_format.md" . --include="*" 2>/dev/null | grep -v "^./.vibekit/feature-plans/" | grep -v "^./.git/" | grep -v "^./skills/sdlc/evals/lint.sh" | grep -q .; then
   fail "stale _plan_sample_format.md reference found"
 else
   pass "no stale _plan_sample_format.md references"
 fi
 
 # 5b. Stale big/small plan template ref — the arch/plan restructure retired these names.
-if grep -rn "_plan_sample_big\|_plan_sample_small" . --include="*" 2>/dev/null | grep -v "^./.feature-plans/" | grep -v "^./.git/" | grep -v "^./skills/sdlc/evals/lint.sh" | grep -q .; then
+if grep -rn "_plan_sample_big\|_plan_sample_small" . --include="*" 2>/dev/null | grep -v "^./.vibekit/feature-plans/" | grep -v "^./.git/" | grep -v "^./skills/sdlc/evals/lint.sh" | grep -q .; then
   fail "stale _plan_sample_big/_plan_sample_small reference found"
 else
   pass "no stale _plan_sample_big/_plan_sample_small references"
+fi
+
+# 5c. Stale .feature-plans/ or .reports/ path reference — the dir-consolidation move retired
+#     these top-level names in favor of .vibekit/feature-plans/ and .vibekit/reports/.
+#     Everything under .vibekit/feature-plans/ (done/ archive, plus pending/wip plans that
+#     narrate the rename itself) is exempt, matching checks 5/5b's precedent in this file.
+#     Every other surface — skill docs, scripts, root docs — must use the new paths.
+if grep -rn "\.feature-plans\|\.reports/" . --include="*" 2>/dev/null \
+    | grep -v "^./.vibekit/feature-plans/" \
+    | grep -v "^./.git/" \
+    | grep -v "^./skills/sdlc/evals/lint.sh" \
+    | grep -q .; then
+  fail "stale .feature-plans/ or .reports/ reference found outside .vibekit/feature-plans/"
+else
+  pass "no stale .feature-plans/ or .reports/ references outside the archive"
 fi
 
 # 6. Lowercase stale ref
@@ -167,20 +182,20 @@ fi
 # 12. reviewer.gate present in the config template, and the template still parses.
 if python3 -c "
 import yaml,sys
-d=yaml.safe_load(open('.vibekit.example.yaml'))
+d=yaml.safe_load(open('vibekit.example.yaml'))
 sys.exit(0 if 'gate' in (d.get('sdlc',{}).get('agents',{}).get('reviewer') or {}) else 1)" 2>/dev/null; then
   pass "sdlc.agents.reviewer.gate present at the correct path"
 else
   fail "sdlc.agents.reviewer.gate missing or at the wrong path"
 fi
 if python3 -c "import yaml" 2>/dev/null; then
-  if python3 -c "import yaml;yaml.safe_load(open('.vibekit.example.yaml'))" 2>/dev/null; then
-    pass ".vibekit.example.yaml parses as YAML"
+  if python3 -c "import yaml;yaml.safe_load(open('vibekit.example.yaml'))" 2>/dev/null; then
+    pass "vibekit.example.yaml parses as YAML"
   else
-    fail ".vibekit.example.yaml is not valid YAML"
+    fail "vibekit.example.yaml is not valid YAML"
   fi
 else
-  pass ".vibekit.example.yaml YAML parse skipped (PyYAML not installed)"
+  pass "vibekit.example.yaml YAML parse skipped (PyYAML not installed)"
 fi
 
 # 13. /sdlc continue must be a registered subcommand — without it awaiting_phase never clears.
@@ -230,7 +245,7 @@ done
 # Three partial copies of the config drifted before this check existed. The example file is
 # canonical; any config key named in the docs must exist in it.
 if python3 "$SCHEMA_CHECK" >/tmp/vk_schema_out 2>/tmp/vk_schema_err; then
-  pass ".vibekit.example.yaml parses and covers every documented config key"
+  pass "vibekit.example.yaml parses and covers every documented config key"
 else
   fail "$(cat /tmp/vk_schema_out /tmp/vk_schema_err | head -2)"
 fi

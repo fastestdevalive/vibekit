@@ -2,7 +2,7 @@
 
 > Read this before writing OR implementing a plan. Per-section templates live in [`SECTIONS.md`](./SECTIONS.md).
 
-Plans live in `.feature-plans/<state>/<feature>/`. See `_template_arch.md` /
+Plans live in `.vibekit/feature-plans/<state>/<feature>/`. See `_template_arch.md` /
 `_template_plan.md` for templates. For larger features, a PRD should exist
 before this plan — link it in the `PRD:` frontmatter field.
 
@@ -95,8 +95,8 @@ RULES — read before writing or implementing:
 
 - Path: `<subfeature>/screenshots/<descriptive-name>.png`
 - Embed with `![alt](./screenshots/name.png)` — descriptive names aid review
-- **Default policy: transient** — `screenshots/` is gitignored (`.feature-plans/.gitignore`), never committed unless the project sets `screenshots.policy: permanent` in `.vibekit.yaml`
-- No `.vibekit.yaml` present → transient, same as the explicit default
+- **Default policy: transient** — `screenshots/` is gitignored (`.vibekit/.gitignore`), never committed unless the project sets `screenshots.policy: permanent` in `.vibekit/config.yaml`
+- No `.vibekit/config.yaml` present → transient, same as the explicit default
 - Cleanup (deleting transient screenshots, rewriting refs) is owned by the `sdlc` skill — see `skills/sdlc/PHASES.md`
 
 ---

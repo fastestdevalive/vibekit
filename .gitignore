@@ -43,7 +43,3 @@ tmp/
 .claude/settings.local.json
 .claude/
 .vibe-station/
-
-# Project config — per-worktree, not shared.
-# Copy .vibekit.example.yaml to .vibekit.yaml and edit. Absent → documented defaults.
-.vibekit.yaml

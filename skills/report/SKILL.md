@@ -7,7 +7,7 @@ triggers:
   - "write a report"
   - "investigate and report"
 globs:
-  - ".reports/**"
+  - ".vibekit/reports/**"
 ---
 
 # Report skill
@@ -16,7 +16,7 @@ Use this skill for one-shot, local-evidence investigation that ends in a finding
 
 - **One-shot** — investigate, write findings, stop. No state file, no checklist, no phases, no resume
 - Read the `planning` skill's `FORMAT.md` for the header block and the allowed/banned elements table
-  - This skill's location and screenshot rules **override** `FORMAT.md`'s plan-specific sections — its checklist rules, `.feature-plans` screenshot paths, and self-containment bar do NOT apply here
+  - This skill's location and screenshot rules **override** `FORMAT.md`'s plan-specific sections — its checklist rules, `.vibekit/feature-plans` screenshot paths, and self-containment bar do NOT apply here
 
 ## When to use
 
@@ -43,14 +43,14 @@ Use this skill for one-shot, local-evidence investigation that ends in a finding
 ## Output location + naming
 
 ```
-.reports/
+.vibekit/reports/
   2026-07-29-auth-flow-codebase-map.md
   2026-07-29-settings-screen-device-audit/
     report.md
     screenshots/           ← gitignored unless the project opts into permanent
 ```
 
-- **Not** under `.feature-plans/` — a report is not a plan; no `pending → wip → done` lifecycle
+- **Not** under `.vibekit/feature-plans/` — a report is not a plan; no `pending → wip → done` lifecycle
 - Flat `.md` file by default; a directory only when the report has screenshots
 - Filename: `YYYY-MM-DD-<slug>.md` — date-prefixed because a report is a snapshot of a moment
 - **Never edit a report in place** — superseding it means writing a new dated report
@@ -65,13 +65,10 @@ Use [`_template_report.md`](./_template_report.md) — Answer → Evidence → D
 
 ## Screenshots
 
-- Path: `.reports/<YYYY-MM-DD-slug>/screenshots/<descriptive-name>.png`
+- Path: `.vibekit/reports/<YYYY-MM-DD-slug>/screenshots/<descriptive-name>.png`
 - Embed with `![alt](./screenshots/name.png)`
-- **Bootstrap:** on the first report in this project that contains a screenshot, if `.reports/.gitignore` does not exist, create it with:
-  ```
-  **/screenshots/
-  ```
-- A project opting into permanent screenshots (keeping them committed) must NOT create that gitignore rule — and must remove it if already present
+- **Bootstrap:** `.vibekit/.gitignore` already carries `**/screenshots/` (shared with `feature-plans/`, written by `scaffold.sh`) — on the first report in this project that contains a screenshot, if `.vibekit/.gitignore` does not exist, create it with `config.yaml` and `**/screenshots/`; if it exists, no action needed
+- A project opting into permanent screenshots (keeping them committed) must narrow the shared rule deliberately rather than delete it outright — deleting it would also un-ignore `feature-plans/` screenshots
 
 ## Writing rules
 

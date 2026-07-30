@@ -45,7 +45,7 @@ platform-agnostic.
 
 ```
 → asks: large feature (PRD) or small fix?  → you said large, so it skips the question
-→ creates .feature-plans/pending/backup-restore/ + .sdlc-state.yaml
+→ creates .vibekit/feature-plans/pending/backup-restore/ + .sdlc-state.yaml
 → writes prd-backup-restore.md          → spawns reviewer → incorporates
 → writes plan-backup-restore.md         → spawns reviewer → incorporates
 → proposes decomposition, waits for your OK
@@ -55,7 +55,7 @@ platform-agnostic.
 **Files after:**
 
 ```
-.feature-plans/wip/backup-restore/
+.vibekit/feature-plans/wip/backup-restore/
 ├── .sdlc-state.yaml
 ├── prd-backup-restore.md
 ├── plan-backup-restore.md
@@ -166,7 +166,7 @@ before I hand it over.
 
 ```
 # no meta-harness — paste into a fresh session / cursor / gemini
-Implement .feature-plans/wip/backup-restore/02-file-picker/plan-02-backup-restore-file-picker.md
+Implement .vibekit/feature-plans/wip/backup-restore/02-file-picker/plan-02-backup-restore-file-picker.md
 fully. Mark each checklist item [x] as you complete it. Start at 2.1.
 ```
 
@@ -279,7 +279,7 @@ what's done, what's next.
 **What the agent does:**
 
 ```
-→ finds .feature-plans/wip/backup-restore/.sdlc-state.yaml
+→ finds .vibekit/feature-plans/wip/backup-restore/.sdlc-state.yaml
 → verifies cwd matches the `worktree:` field       ← catches wrong-worktree work
 → reads current_subfeature + last_completed
 → reads the plan checklist (checklist wins over state on conflict)
@@ -311,7 +311,7 @@ reason so I know why when I come back.
 **What the agent does:**
 
 ```
-→ moves .feature-plans/wip/backup-restore/ → pending/
+→ moves .vibekit/feature-plans/wip/backup-restore/ → pending/
 → records in .sdlc-state.yaml:
      parked_reason: "blocked on upstream storage-permissions PR"
      last_completed: "4.3"
@@ -357,7 +357,7 @@ before anything gets built.
 → gate: llm (default) → one reviewer pass → incorporates
 → chain exhausted → writes to .sdlc-state.yaml:
      awaiting_phase: plan
-     awaiting_artifact: .feature-plans/pending/backup-restore/plan-backup-restore.md
+     awaiting_artifact: .vibekit/feature-plans/pending/backup-restore/plan-backup-restore.md
 → reports the path, names `implement` as what comes next, and STOPS
 ```
 
@@ -463,7 +463,7 @@ done/     onboarding-revamp     2 sub-features
 | Cheap-agent-ready | "check it's self-contained for haiku" | "is the plan done?" |
 | Targeted review | "look specifically for X" | "review again" |
 | Scope one invocation | `/sdlc plan <f>` or `/sdlc prd+plan <f>` | "just do the plan for now" |
-| Stop on every phase, always | `sdlc.agents.reviewer.gate: user` in `.vibekit.yaml` | retyping a chain each time |
+| Stop on every phase, always | `sdlc.agents.reviewer.gate: user` in `.vibekit/config.yaml` | retyping a chain each time |
 
 ## Things the agent will not do without being asked
 
