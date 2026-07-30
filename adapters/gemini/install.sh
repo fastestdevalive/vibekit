@@ -63,7 +63,13 @@ install_one() {
 
 if [[ "$SKILL" == "all" ]]; then
   for d in "$SKILLS_SRC"/*/; do
-    install_one "$(basename "$d")"
+    name="$(basename "$d")"
+    # A dir with no SKILL.md is not a skill (e.g. a companion-only or probe dir) — skip, don't abort.
+    if [[ ! -f "$d/SKILL.md" ]]; then
+      echo "skip   $name (no SKILL.md)"
+      continue
+    fi
+    install_one "$name"
   done
 else
   install_one "$SKILL"

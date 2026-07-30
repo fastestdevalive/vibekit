@@ -1,6 +1,7 @@
 # android-coding skill — writing guide
 
-This is a **rules** skill, not a workflow skill. It has no scaffolder, no templates, no slash-command behavior beyond injecting its body as context.
+- This is a **rules** skill, not a workflow skill
+- No scaffolder, no templates, no slash-command behavior beyond injecting its body as context
 
 ## What belongs here
 
@@ -16,7 +17,7 @@ This is a **rules** skill, not a workflow skill. It has no scaffolder, no templa
 
 ## Style rules for SKILL.md
 
-- **Hard cap: 200 lines** (per `guardrails`). If you're about to push over, propose a new sibling skill (e.g. `android-compose-advanced`) instead of adding sub-files inside this directory.
+- **Hard cap: 200 lines** (per `coding-agent-guardrails`). If you're about to push over, propose a new sibling skill (e.g. `android-compose-advanced`) instead of adding sub-files inside this directory.
 - Every rule needs **either a ✅/❌ code example or a one-sentence rationale.** Preferably both. A bare prohibition without a "why" gets ignored.
 - Keep code blocks compact — one ✅ + one ❌ per rule, not a full file.
 - Use the existing section numbering (1–16). If you add a section, insert it where it logically fits and renumber.

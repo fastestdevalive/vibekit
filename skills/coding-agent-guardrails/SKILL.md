@@ -1,11 +1,12 @@
 ---
-name: guardrails
+name: coding-agent-guardrails
 description: Universal code quality guardrails — file size limits, code structure, VCS discipline, and build behavior for any project
-version: 0.1.0
+version: 0.2.0
 triggers:
   - "set up guardrails"
   - "add guardrails"
-  - "/guardrails"
+  - "/coding-agent-guardrails"
+  - "/guardrails"        # legacy alias — keep
 globs:
   - "AGENTS.md"
   - "CLAUDE.md"
@@ -13,14 +14,22 @@ globs:
   - "agents/**"
 ---
 
-# Guardrails
+# Coding-agent guardrails
 
-Universal rules for any codebase. Apply these on every file you touch.
+Universal rules for any codebase — apply these on every file you touch.
 
 ## File size limits
 
 - **Source files: hard ceiling at 1,500 lines.** If a file you are editing approaches or exceeds this limit, split it before or as part of your change. Never leave a file over 1,500 lines in a merged state.
-- **Agent guide files** (AGENTS.md, CLAUDE.md, GEMINI.md, and any file under `agents/`): max **200 lines** per file. Split into focused sub-guides when the limit approaches.
+- **Doc files: cap by when the file loads, not what it is** — the constraint tracks context cost, not raw size:
+
+| Class | Files | Cap | Why |
+|-------|-------|----:|-----|
+| Always-loaded | `SKILL.md` (every skill), root `CLAUDE.md`, root `AGENTS.md`, `GEMINI.md` | **400** | Costs context on every invocation |
+| On-demand companions | `FORMAT.md`, `SECTIONS.md`, `PHASES.md`, `GRAMMAR.md`, `EXAMPLES.md` | **600** | Loaded only when the phase needs it |
+| Templates | `_template_*.md`, `_*_sample_*.md` | **none** | Copied, never loaded as context |
+
+- Split into focused sub-guides when a file approaches its class cap
 
 ## Code organization
 

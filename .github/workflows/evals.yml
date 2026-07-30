@@ -1,0 +1,20 @@
+name: evals (Tier B, behavioral)
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  pull_request:
+    types: [labeled]
+
+jobs:
+  tier-b:
+    if: github.event_name == 'schedule' || github.event.label.name == 'run-evals'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm i -g @anthropic-ai/claude-code
+      - run: ./install.sh claude-code
+      - name: Behavioral evals
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: bash skills/sdlc/evals/run.sh

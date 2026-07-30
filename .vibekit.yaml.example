@@ -1,0 +1,28 @@
+# .vibekit.yaml — project-level config. Copy to .vibekit.yaml and edit.
+# No file present → every value below is the default.
+
+sdlc:
+  runner:
+    mode: auto               # auto | meta-harness | in-harness — default: everything in-harness
+    meta_harness: null       # null (default) | agent-orchestrator | vibe-station | custom
+    roles:
+      implementer: in-harness  # only role that benefits from meta-harness delegation
+  reviewer:
+    model: opus               # explicit name, or ${CLI_DEFAULT} (resolves per-CLI)
+    gate: llm                 # llm (default) | user | both — who closes an artifact phase
+                              #   llm  = reviewer subagent, auto-advance when clean
+                              #   user = no reviewer; stop and wait for you
+                              #   both = reviewer runs, then still stops for you
+    max_iterations: 3
+    prompt: |                 # optional, appended to every review request
+      Flag missing test coverage and undefined cross-layer contracts.
+  setup:
+    commands: []               # optional, free-form; run before implementation
+      # - git submodule update --init --recursive
+  device:
+    ask_before_access: true   # shared-device protocol — never seize
+
+screenshots:
+  policy: transient          # DEFAULT — transient | permanent; never committed unless permanent
+  path: screenshots/         # relative to the sub-feature directory
+  confirm_cleanup: true      # prompt user before deleting transient screenshots

@@ -41,3 +41,5 @@ tmp/
 
 # Tool-specific local state
 .claude/settings.local.json
+.claude/
+.vibe-station/

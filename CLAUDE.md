@@ -12,7 +12,7 @@ PRD  →  Technical Plan  →  Implementation
 |------|------|-------|
 | **PRD** | Large features: new UX flows, multi-screen changes, data model changes | `prd` |
 | **Technical plan** | All non-trivial work; always after PRD for large features | `planning` |
-| **Guardrails** | Applied continuously on every file touched | `guardrails` |
+| **Guardrails** | Applied continuously on every file touched | `coding-agent-guardrails` |
 
 For small changes (bug fixes, single-screen tweaks, refactors): skip the PRD, write a technical plan or go straight to implementation.
 
@@ -22,24 +22,81 @@ For small changes (bug fixes, single-screen tweaks, refactors): skip the PRD, wr
 |-------|-------------|
 | [`prd`](skills/prd/) | Product requirements — user behavior, options, decisions, screen layouts |
 | [`planning`](skills/planning/) | Technical plan — bullet-point, file/line refs, phased checklists + test verification |
-| [`guardrails`](skills/guardrails/) | File size limits, code structure, VCS discipline, build behavior |
+| [`coding-agent-guardrails`](skills/coding-agent-guardrails/) | File size limits, code structure, VCS discipline, build behavior |
+| [`coding`](skills/coding/) | Universal coding rules — error handling, testing, API design, dependencies, config/secrets, logging |
 | [`android-coding`](skills/android-coding/) | Android/Kotlin/Compose rules — modular architecture, ViewModel scope, Material 3, Compose pitfalls, strings, navigation, network safety |
+| [`sdlc`](skills/sdlc/) | Orchestrates PRD → Plan → Review → Implement → Verify → Review with pluggable reviewer + resumable state |
+| [`report`](skills/report/) | One-shot investigation → findings document — no state, no checklist, no phases |
 
 ## Repo layout
 
 ```
 skills/<name>/
-  SKILL.md                   ← source of truth + YAML frontmatter
-  AGENTS.md                  ← agent writing guide for this skill
-  _prd_sample_format.md      ← (prd) PRD template
-  _plan_sample_format.md     ← (planning) technical plan template
-  scaffold.sh                ← (planning) project bootstrapper
+  SKILL.md                              ← entry point + YAML frontmatter, ALWAYS read
+  FORMAT.md                             ← output format rules (planning, prd) — linked from SKILL.md
+  SECTIONS.md                           ← per-section templates (planning) — linked from SKILL.md
+  PHASES.md                             ← per-phase agent behavior (sdlc) — linked from SKILL.md
+  GRAMMAR.md                            ← invocation parsing + gate semantics (sdlc) — linked from SKILL.md
+  CONTRIBUTING.md                       ← maintainer-only notes — EXCLUDED from installs
+  _prd_sample_format.md                 ← (prd) PRD template
+  _template_arch.md                     ← (planning) arch template — rare, system-level decomposition
+  _template_plan.md                     ← (planning) plan template — the default
+  scaffold.sh                           ← (planning) project bootstrapper
+  _template_report.md                   ← (report) findings-doc template — linked from SKILL.md
 adapters/
   claude-code/install.sh     ← → ~/.claude/skills/<name>/
   cursor/install.sh          ← → .cursor/rules/<name>.mdc
   gemini/install.sh          ← → GEMINI.md + .gemini/commands/<name>.md
 install.sh                   ← top-level dispatcher
 ```
+
+### Companion-file convention
+
+- `AGENTS.md` is retired as a skill filename — one filename, two conflicting audiences (agent-facing rules vs maintainer notes)
+- Every companion file is **named for its content** and **linked from `SKILL.md`** — an unlinked file is never loaded
+- `CONTRIBUTING.md` is reserved for maintainer-only docs ("what belongs in this skill") and is excluded from adapter installs
+- Pure rule skills (`coding-agent-guardrails`, `android-coding`) need no companion — `SKILL.md` is the whole skill
+
+## Feature-plan directory layout
+
+```
+.feature-plans/<state>/<feature>/     ← state: pending | wip | done
+  prd-<feature>.md                    ← master PRD (optional)
+  arch-<feature>.md                   ← master arch (rare — only if system-level decomposition is needed)
+  plan-<feature>.md                   ← master plan
+  NN-<subfeature>/
+    plan-<NN>-<feature>-<subfeature>.md
+    screenshots/                      ← transient by default, gitignored
+```
+
+- Simple features skip the sub-feature dirs — just `plan-<feature>.md` at the feature root
+- Backward compat: flat `pending/<slug>.md` files still work
+
+## Reports directory layout
+
+```
+.reports/
+  YYYY-MM-DD-<slug>.md                  ← flat report, no screenshots
+  YYYY-MM-DD-<slug>/
+    report.md
+    screenshots/                        ← gitignored unless permanent
+```
+
+- Not under `.feature-plans/` — a report is a dated snapshot, not a plan with a lifecycle
+- Never edited in place — superseding a report means writing a new dated one
+
+## Project config — `.vibekit.yaml`
+
+- Optional, at project root — copy from [`.vibekit.yaml.example`](./.vibekit.yaml.example)
+- No file present → every setting uses its documented default
+
+| Key | Default | Meaning |
+|-----|---------|---------|
+| `screenshots.policy` | `transient` | `transient` (gitignored, never committed) \| `permanent` (opt-in, committed) |
+| `screenshots.path` | `screenshots/` | relative to the sub-feature directory |
+| `screenshots.confirm_cleanup` | `true` | prompt before deleting transient screenshots |
+
+- `.feature-plans/.gitignore` (written by `scaffold.sh`) carries `**/screenshots/` — `permanent` requires narrowing it deliberately
 
 ## Installing skills into a project
 
@@ -48,10 +105,10 @@ install.sh                   ← top-level dispatcher
 ./install.sh claude-code
 
 # Gemini CLI (appends to GEMINI.md + emits .gemini/commands/)
-./install.sh gemini [target-dir]
+./install.sh gemini [skill-name] [target-dir]
 
 # Cursor (.cursor/rules/<name>.mdc)
-./install.sh cursor [target-dir]
+./install.sh cursor [skill-name] [target-dir]
 ```
 
 ## Scaffolding a new project
@@ -64,5 +121,5 @@ install.sh                   ← top-level dispatcher
 ## Adding a new skill
 
 1. Create `skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`, `version`, `triggers`, `globs`)
-2. Add an `AGENTS.md` agent writing guide if the skill has format or style rules
+2. Add a `FORMAT.md` (or similarly content-named) companion only if the skill produces a document with a format, or has multi-phase behavior — link it from `SKILL.md`
 3. All adapters pick up the new skill automatically via directory glob
