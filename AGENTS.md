@@ -43,6 +43,7 @@ adapters/
   claude-code/install.sh     ← → ~/.claude/skills/<name>/
   cursor/install.sh          ← → .cursor/rules/<name>.mdc
   gemini/install.sh          ← → GEMINI.md + .gemini/commands/<name>.md
+  agy/install.sh             ← → .agents/skills/<name>/
 install.sh                   ← top-level dispatcher
 ```
 

@@ -79,7 +79,8 @@ vibekit/
 ├── adapters/
 │   ├── claude-code/install.sh          ← → ~/.claude/skills/<name>/
 │   ├── cursor/install.sh               ← → .cursor/rules/<name>.mdc
-│   └── gemini/install.sh               ← → GEMINI.md + .gemini/commands/<name>.md
+│   ├── gemini/install.sh               ← → GEMINI.md + .gemini/commands/<name>.md
+│   └── agy/install.sh                  ← → .agents/skills/<name>/
 └── install.sh                          ← top-level dispatcher
 ```
 
@@ -109,6 +110,7 @@ Each adapter cherry-picks the fields its target tool understands:
 | **Claude Code** | `~/.claude/skills/<name>/SKILL.md` | `SKILL.md` copied verbatim |
 | **Cursor** | `.cursor/rules/<name>.mdc` | `SKILL.md` verbatim |
 | **Gemini CLI** | `GEMINI.md` (context) + `.gemini/commands/<name>.md` (slash cmd) | body inlined in both |
+| **agy (Antigravity)** | `.agents/skills/<name>/SKILL.md` | whole skill dir copied verbatim, same progressive-disclosure model as Claude Code |
 
 Both `AGENTS.md` and `CLAUDE.md` live at the repo root so Claude Code and Gemini CLI automatically load project context when working inside this repo or a scaffolded project.
 
@@ -125,6 +127,9 @@ cd vibekit
 
 # Install into a Gemini CLI project (GEMINI.md + .gemini/commands/)
 ./install.sh gemini all /path/to/your/project
+
+# Install into an agy (Antigravity) project (.agents/skills/)
+./install.sh agy all /path/to/your/project
 
 # Per-skill install
 ./adapters/claude-code/install.sh planning

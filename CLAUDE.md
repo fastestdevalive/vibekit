@@ -47,6 +47,7 @@ adapters/
   claude-code/install.sh     ← → ~/.claude/skills/<name>/
   cursor/install.sh          ← → .cursor/rules/<name>.mdc
   gemini/install.sh          ← → GEMINI.md + .gemini/commands/<name>.md
+  agy/install.sh             ← → .agents/skills/<name>/
 install.sh                   ← top-level dispatcher
 ```
 
@@ -87,7 +88,7 @@ install.sh                   ← top-level dispatcher
 
 ## Project config — `.vibekit.yaml`
 
-- Optional, at project root — copy from [`.vibekit.yaml.example`](./.vibekit.yaml.example)
+- Optional, at project root — copy from [`.vibekit.example.yaml`](./.vibekit.example.yaml)
 - No file present → every setting uses its documented default
 
 | Key | Default | Meaning |
