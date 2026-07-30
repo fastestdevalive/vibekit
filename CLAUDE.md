@@ -89,6 +89,7 @@ install.sh                   ← top-level dispatcher
 ## Project config — `.vibekit.yaml`
 
 - Optional, at project root — copy from [`.vibekit.example.yaml`](./.vibekit.example.yaml)
+- **Gitignored** — per-worktree, not shared. A fresh worktree starts on defaults until you copy one in
 - No file present → every setting uses its documented default
 
 | Key | Default | Meaning |
