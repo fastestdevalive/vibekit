@@ -13,12 +13,12 @@ RULES — read before writing or implementing:
 **Issue:** [issue-slug]
 **Branch:** `feat/[branch-name]`
 **Status:** Pending | WIP | Done
-**PRD:** `.feature-plans/pending/prd-<slug>.md`
+**PRD:** `.vibekit/feature-plans/pending/prd-<slug>.md`
 
 **Parts spawned from this arch:**
-- [ ] `.feature-plans/pending/<feature>/01-<slug>/plan-01-<feature>-<slug>.md` — [short title]
-- [ ] `.feature-plans/pending/<feature>/02-<slug>/plan-02-<feature>-<slug>.md` — [short title]
-- [ ] `.feature-plans/pending/<feature>/03-<slug>/plan-03-<feature>-<slug>.md` — [short title]
+- [ ] `.vibekit/feature-plans/pending/<feature>/01-<slug>/plan-01-<feature>-<slug>.md` — [short title]
+- [ ] `.vibekit/feature-plans/pending/<feature>/02-<slug>/plan-02-<feature>-<slug>.md` — [short title]
+- [ ] `.vibekit/feature-plans/pending/<feature>/03-<slug>/plan-03-<feature>-<slug>.md` — [short title]
 
 ---
 

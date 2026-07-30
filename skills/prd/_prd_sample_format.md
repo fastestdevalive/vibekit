@@ -11,7 +11,7 @@ RULES — read before writing or implementing:
 > One sentence describing the feature and its scope.
 
 **Status:** Draft | Review | Approved | Superseded
-**Technical plan:** `.feature-plans/pending/<feature>/plan-<feature>.md` _(link once the plan exists)_
+**Technical plan:** `.vibekit/feature-plans/pending/<feature>/plan-<feature>.md` _(link once the plan exists)_
 
 ---
 

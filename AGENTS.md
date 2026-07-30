@@ -57,7 +57,7 @@ install.sh                   ← top-level dispatcher
 ## Feature-plan directory layout
 
 ```
-.feature-plans/<state>/<feature>/     ← state: pending | wip | done
+.vibekit/feature-plans/<state>/<feature>/     ← state: pending | wip | done
   prd-<feature>.md                    ← master PRD (optional)
   arch-<feature>.md                   ← master arch (rare — only if system-level decomposition is needed)
   plan-<feature>.md                   ← master plan
@@ -72,14 +72,14 @@ install.sh                   ← top-level dispatcher
 ## Reports directory layout
 
 ```
-.reports/
+.vibekit/reports/
   YYYY-MM-DD-<slug>.md                  ← flat report, no screenshots
   YYYY-MM-DD-<slug>/
     report.md
     screenshots/                        ← gitignored unless permanent
 ```
 
-- Not under `.feature-plans/` — a report is a dated snapshot, not a plan with a lifecycle
+- Not under `.vibekit/feature-plans/` — a report is a dated snapshot, not a plan with a lifecycle
 - Never edited in place — superseding a report means writing a new dated one
 
 ## Installing skills into a project
@@ -98,7 +98,7 @@ install.sh                   ← top-level dispatcher
 ## Scaffolding a new project
 
 ```bash
-# Creates .feature-plans/, places AGENTS.md + CLAUDE.md in the target project
+# Creates .vibekit/feature-plans/, places AGENTS.md + CLAUDE.md in the target project
 ./skills/planning/scaffold.sh /path/to/your/project
 ```
 

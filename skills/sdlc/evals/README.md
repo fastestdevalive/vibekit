@@ -23,7 +23,7 @@ python3 skills/sdlc/evals/prose-lint.py
 ## Running a Tier B case manually
 
 1. Open the case row in `cases.md` — read **Setup state**
-2. Create that state by hand under a scratch `.feature-plans/` tree
+2. Create that state by hand under a scratch `.vibekit/feature-plans/` tree
 3. Run the **Prompt** against a fresh agent session with the `sdlc` skill installed
 4. Check the transcript + resulting files against **Pass criteria**
 

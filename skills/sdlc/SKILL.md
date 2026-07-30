@@ -7,8 +7,8 @@ triggers:
   - "run full sdlc"
   - "sdlc workflow"
 globs:
-  - ".feature-plans/**"
-  - ".vibekit.yaml"
+  - ".vibekit/feature-plans/**"
+  - ".vibekit/config.yaml"
 ---
 
 # SDLC skill
@@ -49,11 +49,11 @@ Load each one at the phase that needs it — do not write the artifact from memo
 
 ## Config schema
 
-- Discovery order: project `.vibekit.yaml` (repo root) → hardcoded defaults below
+- Discovery order: project `.vibekit/config.yaml` (repo root) → hardcoded defaults below
 - No global tier in V1
 
 ```yaml
-# .vibekit.yaml — common case. FULL SCHEMA: `.vibekit.example.yaml` (canonical)
+# .vibekit/config.yaml — common case. FULL SCHEMA: `vibekit.example.yaml` (canonical)
 sdlc:
   agents:
     reviewer:
@@ -64,11 +64,11 @@ screenshots:
   policy: transient    # transient | permanent
 ```
 
-> **Canonical schema: [`.vibekit.example.yaml`](../../.vibekit.example.yaml)** — every field,
+> **Canonical schema: [`vibekit.example.yaml`](../../vibekit.example.yaml)** — every field,
 > its default, and whether it is honored or reserved. This block is a subset; it never
 > defines a field the canonical file doesn't.
 
-- **No `.vibekit.yaml` present** → every value above is the default; screenshots stay `transient`
+- **No `.vibekit/config.yaml` present** → every value above is the default; screenshots stay `transient`
 - `sdlc.agents.reviewer.model: ${CLI_DEFAULT}` sentinel resolves per CLI:
 
 | Sentinel | Claude Code | Cursor | Gemini CLI |
@@ -121,7 +121,7 @@ screenshots:
 /sdlc <feature>
       │
       ▼
-read .vibekit.yaml (defaults if absent)
+read .vibekit/config.yaml (defaults if absent)
       │
       ▼
 FEATURE LEVEL (once)
@@ -280,7 +280,7 @@ subfeatures:
     mode: implementing       # NEVER overwritten by a pause — see awaiting_phase
     phase_chain: [plan]      # scope of the last invocation; null = default full chain
     awaiting_phase: plan     # null | prd|plan|implement|verify|review — non-null ⇒ DO NOT ADVANCE
-    awaiting_artifact: ".feature-plans/wip/auth-flow/03-fix-nav-regressions/plan-03-fix-nav-regressions.md"
+    awaiting_artifact: ".vibekit/feature-plans/wip/auth-flow/03-fix-nav-regressions/plan-03-fix-nav-regressions.md"
     superseded_reason: null  # set on M4 replan
     parked_reason: null      # set on M7
     last_completed: "2.3"    # checklist id — resume anchor
@@ -299,7 +299,7 @@ subfeatures:
 
 ## Runner — where subagents execute
 
-> Agent routing is configured in [`.vibekit.example.yaml`](../../.vibekit.example.yaml)
+> Agent routing is configured in [`vibekit.example.yaml`](../../vibekit.example.yaml)
 > under `sdlc.agents.<name>.run_in`. Only `implementer` is honored today; the rest are reserved.
 
 | Role | Interactive | Needs isolation | Default | Why |

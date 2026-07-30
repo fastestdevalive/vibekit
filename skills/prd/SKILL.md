@@ -7,7 +7,7 @@ triggers:
   - "write a product requirements doc"
   - "/prd"
 globs:
-  - ".feature-plans/**"
+  - ".vibekit/feature-plans/**"
 ---
 
 # PRD skill
@@ -33,10 +33,10 @@ Use this skill before writing a technical plan when a feature is large enough to
 PRD  →  Technical Plan  →  Implementation
 ```
 
-1. Create `.feature-plans/pending/<feature>/prd-<feature>.md` (this skill) — **directory mode, primary**
+1. Create `.vibekit/feature-plans/pending/<feature>/prd-<feature>.md` (this skill) — **directory mode, primary**
    - Sub-feature PRD (only when the master PRD doesn't cover it): `<feature>/NN-<sub>/prd-<NN>-<feature>-<sub>.md`
-   - **Backward compat:** `.feature-plans/pending/prd-<slug>.md` (flat file) still works for existing projects
-2. Once the PRD is reviewed and decisions are settled, create `.feature-plans/pending/<feature>/plan-<feature>.md` (planning skill)
+   - **Backward compat:** `.vibekit/feature-plans/pending/prd-<slug>.md` (flat file) still works for existing projects
+2. Once the PRD is reviewed and decisions are settled, create `.vibekit/feature-plans/pending/<feature>/plan-<feature>.md` (planning skill)
 3. Link the two files via frontmatter (`prd:` and `plan:` fields)
 
 ## Format rules

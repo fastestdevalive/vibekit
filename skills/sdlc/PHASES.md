@@ -73,11 +73,11 @@ flowchart LR
 - **One logical commit per sub-feature** — never commit without explicit permission, except the carve-out below
 - Stage only files relevant to the task
 
-**Carve-out for `.feature-plans/`:**
+**Carve-out for `.vibekit/feature-plans/`:**
 
 | Path | Commit without asking? |
 |------|:---:|
-| `.feature-plans/**` (plans, state, checklist) | ✅ yes |
+| `.vibekit/feature-plans/**` (plans, state, checklist) | ✅ yes |
 | Source, config, tests, everything else | ❌ always ask |
 
 - Auto-commits use a fixed prefix so they're easy to squash: `chore(sdlc): <feature>/<NN> <phase>`
@@ -107,7 +107,7 @@ flowchart LR
 
 - Run the self-containment bar against the plan (see `skills/planning/FORMAT.md`)
 - Report per-check pass/fail; offer to fix any gap before handing over
-- On fix: commit the plan + checklist state (covered by the `.feature-plans/` carve-out)
+- On fix: commit the plan + checklist state (covered by the `.vibekit/feature-plans/` carve-out)
 - Print the handoff summary: what's `[x]`, what's `[ ]`, exact next item
 - Emit the spawn command for the configured runner:
 
@@ -124,7 +124,7 @@ Implement <plan-path> fully.
 - Mark each checklist item [x] as you complete it, in the plan file.
 - Do NOT edit .sdlc-state.yaml — the orchestrator owns it.
 - Do NOT commit source. Commit ONLY the plan checklist — a deliberate carve-out from
-  "never commit without permission", scoped to `.feature-plans/**`.
+  "never commit without permission", scoped to `.vibekit/feature-plans/**`.
 - Stop and report if a step is ambiguous rather than guessing.
 Start at <next-item>.
 ```

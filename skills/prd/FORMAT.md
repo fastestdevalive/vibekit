@@ -1,6 +1,6 @@
 # PRD format — Agent guide
 
-- PRDs live in `.feature-plans/<state>/<feature>/`
+- PRDs live in `.vibekit/feature-plans/<state>/<feature>/`
 - See `_prd_sample_format.md` for the template
 
 ---

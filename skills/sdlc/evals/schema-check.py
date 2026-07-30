@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Canonical-schema check for .vibekit.example.yaml.
+"""Canonical-schema check for vibekit.example.yaml.
 
 Scope: the CONFIG schema only. `.sdlc-state.yaml` is a separate, runtime schema whose keys
 (awaiting_phase, spawned_from, last_completed, ...) are deliberately not checked here.
@@ -11,9 +11,9 @@ false failures. Precision beats recall for a check that gates every PR.
 import re, sys, glob, yaml
 
 try:
-    ex = yaml.safe_load(open(".vibekit.example.yaml"))
+    ex = yaml.safe_load(open("vibekit.example.yaml"))
 except Exception as e:
-    print(f".vibekit.example.yaml is not valid YAML: {e}"); sys.exit(1)
+    print(f"vibekit.example.yaml is not valid YAML: {e}"); sys.exit(1)
 
 def flat(d, prefix=""):
     out = set()
