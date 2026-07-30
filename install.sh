@@ -2,7 +2,7 @@
 # Top-level vibekit installer. Dispatches to the right per-tool adapter.
 #
 # Usage: ./install.sh <tool> [skill-name]
-#   tool:       claude-code | cursor | gemini
+#   tool:       claude-code | cursor | gemini | agy
 #   skill-name: optional, defaults to "all"
 
 set -euo pipefail
@@ -10,7 +10,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <claude-code|cursor|gemini> [skill-name]" >&2
+  echo "Usage: $0 <claude-code|cursor|gemini|agy> [skill-name]" >&2
   exit 1
 fi
 
