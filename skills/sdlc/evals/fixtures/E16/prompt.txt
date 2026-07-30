@@ -1,0 +1,8 @@
+/sdlc demo
+
+The plan below (plan-01-demo-core.md) has already been through two reviewer rejections
+— see its `## Review History` section. `.vibekit/config.yaml` sets
+sdlc.agents.reviewer.max_iterations to 2, and we are already at that cap. Do NOT run a
+third review pass. Escalate now, exactly per the skill's iteration-exhaustion rule:
+present the (1) continue anyway (2) pause for manual review choice, and stop there.
+Consider it pre-approved to escalate without further confirmation from me.

@@ -248,7 +248,8 @@ done
 if python3 "$SCHEMA_CHECK" >/tmp/vk_schema_out 2>/tmp/vk_schema_err; then
   pass "vibekit.example.yaml parses and covers every documented config key"
 else
-  fail "$(cat /tmp/vk_schema_out /tmp/vk_schema_err | head -2)"
+  # drop the advisory "note:" line — it precedes the real cause and would bury it
+  fail "$(cat /tmp/vk_schema_out /tmp/vk_schema_err | grep -v "^note:" | head -2)"
 fi
 rm -f /tmp/vk_schema_out /tmp/vk_schema_err
 
@@ -258,5 +259,38 @@ if bash "$(dirname "${BASH_SOURCE[0]}")/smoke.sh" >/dev/null 2>&1; then
 else
   fail "eval fixture smoke test failed — run skills/sdlc/evals/smoke.sh"
 fi
+
+# --- cursor/gemini must inline companions, not ship dangling links (gap 2) ---
+# sdlc/SKILL.md links GRAMMAR.md and PHASES.md; those tools have no companion-file
+# mechanism, so the adapters must inline the companion CONTENT, not just the link text.
+TMPD4="$(mktemp -d)"
+./install.sh cursor all "$TMPD4" >/dev/null 2>&1
+if grep -q "Dispatch precedence" "$TMPD4/.cursor/rules/sdlc.mdc" 2>/dev/null \
+    && grep -q "Resume rules (M2)" "$TMPD4/.cursor/rules/sdlc.mdc" 2>/dev/null; then
+  pass "cursor sdlc.mdc inlines GRAMMAR.md + PHASES.md content"
+else
+  fail "cursor sdlc.mdc missing inlined companion content"
+fi
+if grep -q "evals/" "$TMPD4/.cursor/rules/sdlc.mdc" 2>/dev/null; then
+  fail "cursor sdlc.mdc leaked an evals/ reference"
+else
+  pass "cursor sdlc.mdc excludes evals/"
+fi
+rm -rf "$TMPD4"
+
+TMPD5="$(mktemp -d)"
+./install.sh gemini all "$TMPD5" >/dev/null 2>&1
+if grep -q "Dispatch precedence" "$TMPD5/GEMINI.md" 2>/dev/null \
+    && grep -q "Resume rules (M2)" "$TMPD5/GEMINI.md" 2>/dev/null; then
+  pass "gemini GEMINI.md inlines GRAMMAR.md + PHASES.md content"
+else
+  fail "gemini GEMINI.md missing inlined companion content"
+fi
+if grep -q "evals/" "$TMPD5/GEMINI.md" 2>/dev/null; then
+  fail "gemini GEMINI.md leaked an evals/ reference"
+else
+  pass "gemini GEMINI.md excludes evals/"
+fi
+rm -rf "$TMPD5"
 
 exit "$FAIL"

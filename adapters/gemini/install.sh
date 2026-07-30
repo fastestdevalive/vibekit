@@ -7,6 +7,12 @@
 # Installs to two locations:
 #   GEMINI.md              ← context injected into every Gemini session
 #   .gemini/commands/      ← registers /skill-name slash commands
+#
+# Gemini CLI has no companion-file mechanism — a SKILL.md that links to
+# GRAMMAR.md/FORMAT.md/etc. would ship those links inert. So every companion
+# linked from SKILL.md (e.g. `[GRAMMAR.md](./GRAMMAR.md)`) is inlined into
+# both destinations, under a `## ── <NAME>.md ──` separator, excluding
+# evals/ and CONTRIBUTING.md (never shipped by any adapter).
 
 set -euo pipefail
 
@@ -22,22 +28,46 @@ COMMANDS_DIR="$TARGET/.gemini/commands"
 touch "$GEMINI_MD"
 mkdir -p "$COMMANDS_DIR"
 
+# render_companions <skill-dir> — every companion linked from SKILL.md, inlined.
+render_companions() {
+  local dir="$1"
+  local src="$dir/SKILL.md"
+  local companions
+  companions="$(grep -oE '\]\(\./[A-Za-z0-9_.-]+\.md\)' "$src" 2>/dev/null \
+    | sed -E 's/^\]\(\.\///; s/\)$//' | awk '!seen[$0]++' || true)"
+  local c
+  for c in $companions; do
+    case "$c" in
+      CONTRIBUTING.md) continue ;;
+    esac
+    if [[ -f "$dir/$c" ]]; then
+      echo
+      echo "## ── $c ──"
+      echo
+      cat "$dir/$c"
+    fi
+  done
+}
+
 install_one() {
   local name="$1"
-  local src="$SKILLS_SRC/$name/SKILL.md"
+  local skill_dir="$SKILLS_SRC/$name"
+  local src="$skill_dir/SKILL.md"
   if [[ ! -f "$src" ]]; then
     echo "Error: no SKILL.md for $name" >&2
     return 1
   fi
 
-  # 1. Append skill body to GEMINI.md (idempotent via sentinel comment)
+  # 1. Append skill body + inlined companions to GEMINI.md (idempotent via sentinel comment)
   if grep -q "<!-- vibekit:$name -->" "$GEMINI_MD" 2>/dev/null; then
     echo "skip   $name (already present in GEMINI.md)"
   else
     {
       echo
       echo "<!-- vibekit:$name -->"
+      echo "<!-- companions are inlined below — Gemini CLI has no companion-file mechanism -->"
       cat "$src"
+      render_companions "$skill_dir"
       echo "<!-- /vibekit:$name -->"
     } >> "$GEMINI_MD"
     echo "appended $name → GEMINI.md"
@@ -54,8 +84,10 @@ install_one() {
     {
       echo "# /$name"
       [[ -n "$desc" ]] && echo && echo "$desc"
+      echo "<!-- companions are inlined below — Gemini CLI has no companion-file mechanism -->"
       echo
       cat "$src"
+      render_companions "$skill_dir"
     } > "$cmd_file"
     echo "wrote  $cmd_file"
   fi

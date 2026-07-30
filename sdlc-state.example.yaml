@@ -1,0 +1,84 @@
+# sdlc-state.example.yaml — CANONICAL SCHEMA for `.sdlc-state.yaml`.
+#
+# Single source of truth for the sdlc skill's per-feature runtime state file. Every field
+# is listed here with its meaning and whether the skill acts on it today. `skills/sdlc/*.md`
+# show subsets and point back here; they never redefine a field.
+#
+# Unlike `vibekit.example.yaml` (user-authored config, copied into a project and edited),
+# this file is agent-authored and agent-owned — it lives at
+# `.vibekit/feature-plans/<state>/<feature>/.sdlc-state.yaml` and is written/updated by the
+# sdlc skill itself. This file is a reference to copy fields FROM, not a template to copy
+# whole — a real state file only has the `subfeatures[]` entries that actually exist.
+#
+# Legend:
+#   [honored] the skill reads and/or writes this field today
+#   [spec]    documented and reserved, NOT acted on yet — present in examples, not enforced
+
+feature: auth-flow            # [honored] feature name — drives every artifact filename
+
+worktree: /home/gb/code/proj/worktrees/wt-1
+# [honored] absolute path checked against cwd before ANY write (PHASES.md § Worktree guard)
+#   mismatch → STOP before writing, show both paths, ask switch-vs-update — never guess
+
+created: 2026-07-25T10:00:00Z
+# [spec] feature-creation timestamp — informational, not read by any resume/dispatch logic
+
+master:
+  # [honored] complete | skipped | pending             default: pending
+  #   drives whether the PRD phase is asked about (M1) vs already settled
+  prd: complete
+
+  # [honored] complete | skipped | pending             default: pending
+  #   covers arch-OR-plan completion — no separate `arch:` field, no master-level exec state.
+  #   `master.plan: complete` is the signal that lets `root` skip its own plan phase and
+  #   enter the inner cycle at `implement` (SKILL.md § Feature → sub-feature decomposition)
+  plan: complete
+
+current_subfeature: 03-fix-nav-regressions
+# [honored] which subfeatures[] entry is being worked; resume (M2) reads this first
+
+subfeatures:
+  # id: root — [honored] every feature has this entry from FEATURE LEVEL creation (M1),
+  # before any decomposition. A zero-parts feature (no arch, or an arch yielding zero
+  # parts) keeps `root` as its ONLY queue entry, executing `plan-<feature>.md` directly.
+  - id: root                    # [honored] "root" | "NN-<name>" — subfeature identity
+    origin: planned              # [honored] planned|bug-bundle|requirement-change|refinement
+    spawned_from: null           # [honored] sub-feature id that surfaced this one (M5); null for planned
+    mode: implementing           # [honored] planning|implementing|verifying|parked|handoff|cancelled|done
+    last_completed: "1.2"        # [honored] checklist id — resume anchor; checklist wins over this on conflict
+    awaiting_phase: null         # [honored] null|prd|plan|implement|verify|review — non-null ⇒ DO NOT ADVANCE
+    awaiting_artifact: null      # [honored] repo-relative path to the artifact being waited on; null iff awaiting_phase is null
+    phase_chain: null            # [honored] scope of the last invocation, e.g. [plan]; null = default full chain
+    superseded_reason: null      # [honored] set on M4 replan — why the prior approach was superseded
+    parked_reason: null          # [honored] set on M7 park — why the sub-feature was deprioritized/blocked
+    handoff:                     # [honored] M3 delegation bookkeeping
+      next_item: null            # [honored] checklist id the delegate should start at
+      returned_at: null          # [honored] set when the delegate reports done
+      verified_by: null          # [honored] parent sub-feature/session that re-ran the verify items
+    commit: null                 # [spec] commit hash recorded once this sub-feature's work lands
+
+  - id: 01-data-layer
+    origin: planned
+    spawned_from: null
+    mode: done
+    last_completed: "4.3"
+    awaiting_phase: null
+    awaiting_artifact: null
+    phase_chain: null
+    superseded_reason: null
+    parked_reason: null
+    handoff: {next_item: null, returned_at: null, verified_by: null}
+    commit: a1b2c3d               # [spec] populated post-commit; nothing re-reads it yet
+
+  - id: 03-fix-nav-regressions
+    origin: bug-bundle
+    spawned_from: 02-api          # [honored] which sub-feature's verification surfaced these bugs
+    mode: implementing
+    last_completed: "2.3"
+    awaiting_phase: plan          # non-null ⇒ this sub-feature is paused, blocks the queue drain to done/
+    awaiting_artifact: ".vibekit/feature-plans/wip/auth-flow/03-fix-nav-regressions/plan-03-fix-nav-regressions.md"
+    phase_chain: [plan]
+    superseded_reason: null
+    parked_reason: null
+    handoff: {next_item: null, returned_at: null, verified_by: null}
+    commit: null

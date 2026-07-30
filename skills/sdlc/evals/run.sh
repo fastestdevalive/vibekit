@@ -103,6 +103,171 @@ assert_E15() {
   return 0
 }
 
+# E34 — /sdlc continue at awaiting_phase: review, review clean → clears the pause,
+# mode: done, and the queue actually DRAINS to done/. This is the fix for the drain
+# deadlock: without the release rule, done/ is unreachable.
+assert_E34() {
+  local w="$1"
+  local donedir="$w/.vibekit/feature-plans/done/demo"
+  [[ -d "$donedir" ]] || { echo "  feature not moved to done/ — queue drain did not complete" >&2; return 1; }
+  local state; state="$(find "$donedir" -name '.sdlc-state.yaml' 2>/dev/null | head -1)"
+  [[ -f "$state" ]] || { echo "  no state file under done/" >&2; return 1; }
+  grep -q "mode: done" "$state" || { echo "  subfeature mode not set to done" >&2; return 1; }
+  if grep -qE "awaiting_phase:\s*review" "$state"; then
+    echo "  awaiting_phase still review — pause not cleared" >&2; return 1
+  fi
+  if [[ -d "$w/.vibekit/feature-plans/wip/demo" ]]; then
+    echo "  stale copy left behind in wip/" >&2; return 1
+  fi
+  return 0
+}
+
+# E14 — a delegate (haiku) reports done with checklist 100% [x], but the artifact it
+# claims to have produced is actually wrong. The parent must re-run verify itself, not
+# trust the [x] marks, and the mismatch must surface somewhere observable.
+assert_E14() {
+  local w="$1" state
+  state="$(find "$w/.vibekit/feature-plans" -name '.sdlc-state.yaml' 2>/dev/null | head -1)"
+  [[ -f "$state" ]] || { echo "  no state file" >&2; return 1; }
+  # verified_by set to a NON-null value — the fixture seeds the key present-but-null
+  # (matching the canonical schema), so mere key presence must not count as a pass
+  local verified_by_set=1
+  grep -qE 'verified_by:[[:space:]]*[^[:space:]]+' "$state" \
+    && ! grep -qE 'verified_by:[[:space:]]*(null|~)?[[:space:]]*$' "$state" \
+    && verified_by_set=0
+  # negative: must not blindly trust [x] and flip straight to done without re-verifying
+  if grep -q "mode: done" "$state" && [[ "$verified_by_set" -ne 0 ]]; then
+    echo "  flipped to done without recording a re-verification" >&2; return 1
+  fi
+  # positive: it actually looked — recorded verified_by, flagged the bad file in
+  # output, or spawned a bug-bundle sub-feature for the broken result
+  if [[ "$verified_by_set" -eq 0 ]]; then return 0; fi
+  if grep -qi "result.txt" "$w/.agent-output.txt" 2>/dev/null; then return 0; fi
+  if find "$w/.vibekit/feature-plans" -maxdepth 3 -type d -name '0[2-9]-*' 2>/dev/null | grep -q .; then return 0; fi
+  echo "  no evidence the checklist [x] marks were independently re-verified" >&2
+  return 1
+}
+
+# E16 — reviewer already rejected twice (max_iterations: 2, reached). Must escalate —
+# present continue-vs-pause — never run a silent 3rd iteration.
+assert_E16() {
+  local w="$1"
+  local out="$w/.agent-output.txt"
+  local plan; plan="$(find "$w/.vibekit/feature-plans" -name 'plan-*.md' 2>/dev/null | head -1)"
+  [[ -f "$plan" ]] || { echo "  no plan file" >&2; return 1; }
+  if grep -qi "Iteration 3" "$plan"; then
+    echo "  ran a 3rd review iteration past max_iterations" >&2; return 1
+  fi
+  grep -q "Iteration 1: REJECTED" "$plan" || { echo "  review history was rewritten" >&2; return 1; }
+  grep -q "Iteration 2: REJECTED" "$plan" || { echo "  review history was rewritten" >&2; return 1; }
+  # positive: the escalation choice was actually presented, not silently skipped
+  if grep -qi "continue" "$out" 2>/dev/null && grep -qi "pause" "$out" 2>/dev/null; then
+    return 0
+  fi
+  echo "  escalation choice (continue vs pause) not surfaced in output" >&2
+  return 1
+}
+
+# E36 — /sdlc continue with nothing awaiting must say so, then fall through to normal
+# M2 resume (forward progress) rather than erroring or silently doing nothing.
+assert_E36() {
+  local w="$1"
+  local out="$w/.agent-output.txt"
+  local plan; plan="$(find "$w/.vibekit/feature-plans" -name 'plan-*.md' 2>/dev/null | head -1)"
+  [[ -f "$plan" ]] || { echo "  no plan file" >&2; return 1; }
+  # Assert the INVARIANT, not the phrasing. An earlier version required the words
+  # "nothing is awaiting"; the skill correctly resumed and reported progress instead,
+  # so a correct implementation failed. Same trap as E4's "<=2 clusters".
+  # positive — it fell through to normal resume and advanced
+  if [[ ! -f "$w/src/next_step.txt" ]] && ! grep -qE '^\- \[x\] \*\*1\.2\*\*' "$plan"; then
+    echo "  no forward progress: did not fall through to normal resume" >&2; return 1
+  fi
+  # negative — `continue` must dispatch as a SUBCOMMAND, never be parsed as a feature name
+  if find "$w/.vibekit/feature-plans" -maxdepth 3 -type d -name 'continue*' 2>/dev/null | grep -q .; then
+    echo "  parsed 'continue' as a feature name instead of dispatching it" >&2; return 1
+  fi
+  # negative — must not invent a pause where none existed
+  local state; state="$(find "$w/.vibekit/feature-plans" -name '.sdlc-state.yaml' 2>/dev/null | head -1)"
+  if [[ -f "$state" ]] && grep -qE 'awaiting_phase:[[:space:]]*[^[:space:]n~]' "$state"; then
+    echo "  set awaiting_* despite nothing having been awaited" >&2; return 1
+  fi
+  return 0
+}
+
+# E37 — fresh session, awaiting_phase set → restate + ask, never auto-advance into
+# implement. Hybrid: a correct pause and a broken no-op leave similar trees, so this
+# also asserts output CONTENT (the awaited artifact must be named).
+assert_E37() {
+  local w="$1"
+  local out="$w/.agent-output.txt"
+  if [[ -f "$w/src/a.txt" || -f "$w/src/b.txt" ]]; then
+    echo "  auto-advanced into implement despite an outstanding awaiting_phase" >&2; return 1
+  fi
+  local plan; plan="$(find "$w/.vibekit/feature-plans" -name 'plan-*.md' 2>/dev/null | head -1)"
+  [[ -f "$plan" ]] || { echo "  no plan file" >&2; return 1; }
+  if grep -qE '^\- \[x\]' "$plan"; then
+    echo "  checklist items got checked despite an outstanding awaiting_phase" >&2; return 1
+  fi
+  local state; state="$(find "$w/.vibekit/feature-plans" -name '.sdlc-state.yaml' 2>/dev/null | head -1)"
+  [[ -f "$state" ]] || { echo "  no state file" >&2; return 1; }
+  grep -q "awaiting_phase: plan" "$state" || { echo "  awaiting_phase was cleared without /sdlc continue" >&2; return 1; }
+  grep -q "plan-01-demo-core.md" "$out" 2>/dev/null || {
+    echo "  never restated the awaited artifact — indistinguishable from a no-op" >&2; return 1; }
+  return 0
+}
+
+# E13 — state claims the sub-feature is done (last_completed: 1.3), but the checklist
+# still has 1.3 unchecked. The checklist must win: forward progress on 1.3, AND the
+# mismatch must be flagged, not silently smoothed over.
+assert_E13() {
+  local w="$1"
+  local out="$w/.agent-output.txt"
+  local plan; plan="$(find "$w/.vibekit/feature-plans" -name 'plan-*.md' 2>/dev/null | head -1)"
+  [[ -f "$plan" ]] || { echo "  no plan file" >&2; return 1; }
+  if [[ ! -f "$w/src/c.txt" ]] && ! grep -qE '^\- \[x\] \*\*1\.3\*\*' "$plan"; then
+    echo "  trusted the state file's 'done' claim over the checklist — no forward progress" >&2; return 1
+  fi
+  if ! grep -qiE "mismatch|inconsisten|conflict|disagree|out of sync|out-of-sync" "$out" 2>/dev/null; then
+    echo "  did not flag the state/checklist mismatch" >&2; return 1
+  fi
+  return 0
+}
+
+# E12 — a plan spanning frontend + backend with no boundary/interface contract section
+# must FAIL review, naming the missing contract specifically.
+assert_E12() {
+  local w="$1"
+  local out="$w/.agent-output.txt"
+  [[ -s "$out" ]] || { echo "  no agent output produced" >&2; return 1; }
+  if ! grep -qiE "fail|reject|not ready|not pass|missing" "$out" 2>/dev/null; then
+    echo "  review did not report a failure" >&2; return 1
+  fi
+  if ! grep -qiE "boundary|contract|interface" "$out" 2>/dev/null; then
+    echo "  review failed but never named the missing boundary contract" >&2; return 1
+  fi
+  if [[ -f "$w/src/api/serializer.py" || -f "$w/src/ui/ExportScreen.kt" ]]; then
+    echo "  agent implemented instead of reviewing" >&2; return 1
+  fi
+  return 0
+}
+
+# E22 — /sdlc plan <feature> on a brand-new feature is a 1-token chain: writes the plan,
+# reviews it, and STOPS at the chain end — implement never runs even though the
+# reviewer gate is the auto-advancing default (llm).
+assert_E22() {
+  local w="$1"
+  local planfile; planfile="$(find "$w/.vibekit/feature-plans" -maxdepth 4 -name 'plan-auth-flow.md' 2>/dev/null | head -1)"
+  [[ -f "$planfile" ]] || { echo "  plan-auth-flow.md not created" >&2; return 1; }
+  if git -C "$w" status --porcelain 2>/dev/null | grep -v '^?? \.vibekit/' | grep -v '\.agent-output\.txt' | grep -q .; then
+    echo "  files outside .vibekit/ were touched — implement ran past the chain end" >&2; return 1
+  fi
+  local state; state="$(find "$w/.vibekit/feature-plans" -name '.sdlc-state.yaml' 2>/dev/null | head -1)"
+  [[ -f "$state" ]] || { echo "  no state file created" >&2; return 1; }
+  grep -q "awaiting_phase: plan" "$state" || { echo "  awaiting_phase not set to plan at chain end" >&2; return 1; }
+  grep -q "plan-auth-flow.md" "$state" || { echo "  awaiting_artifact does not point at the plan" >&2; return 1; }
+  return 0
+}
+
 # ---------------------------------------------------------------- dispatch
 
 CASES=("$@")

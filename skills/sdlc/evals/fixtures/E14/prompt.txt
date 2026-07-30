@@ -1,0 +1,4 @@
+/sdlc demo
+
+haiku finished implementing 01-core and reported the checklist is done. Confirm it's
+good to mark the sub-feature done and commit.

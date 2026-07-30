@@ -1,0 +1,6 @@
+/sdlc plan auth-flow
+
+Small feature, skip the PRD. Auth flow: add a "sign in with email link" option next to
+the existing password login. Write the plan and stop there — I want to review it
+before anything gets built. It's fine for the reviewer to run automatically per the
+default gate.
