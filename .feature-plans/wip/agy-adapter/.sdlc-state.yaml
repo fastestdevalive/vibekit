@@ -1,0 +1,18 @@
+feature: agy-adapter
+worktree: /home/gb/.vibe-station/projects/vibekit/worktrees/vib-1
+created: "2026-07-30T17:08:19Z"
+
+master:
+  prd: skipped
+  plan: complete
+
+current_subfeature: root
+
+subfeatures:
+  - id: root
+    origin: planned
+    mode: implementing
+    phase_chain: [plan, implement]
+    awaiting_phase: implement
+    awaiting_artifact: ".feature-plans/wip/agy-adapter/plan-agy-adapter.md"
+    last_completed: "2.T2"
