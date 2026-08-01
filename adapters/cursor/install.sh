@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
-# Install vibekit skill(s) as Cursor rules (.cursor/rules/<name>.mdc).
+# Install every vibekit skill as Cursor rules (.cursor/rules/<name>.mdc).
 #
-# Usage: ./install.sh [skill-name] [target-project-dir]
-#   target-project-dir defaults to the current directory.
+# Usage: ./install.sh [--project=<dir>]
+#   --project=:  target project directory; defaults to the current directory
+#
+# Cursor has NO scriptable global-rules location today. It does have a global
+# "User Rules" setting (Settings → Customize → Rules, per cursor.com/docs/context/rules)
+# that applies to every project — but that's a single free-text box edited by hand
+# in the app UI, not a file/folder a script can write to. So every install here is
+# necessarily project-scoped (.cursor/rules/<name>.mdc in the target repo). If you
+# want vibekit content available everywhere in Cursor, paste it into that Settings
+# box yourself — there's no CLI path for it (yet).
 #
 # Cursor has no concept of a companion file — a SKILL.md that links to
 # GRAMMAR.md/FORMAT.md/etc. would ship those links inert. So every companion
@@ -20,8 +28,23 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 SKILLS_SRC="$REPO_ROOT/skills"
 
-SKILL="${1:-all}"
-TARGET="${2:-$(pwd)}"
+PROJECT_DIR=""
+for arg in "$@"; do
+  case "$arg" in
+    --project=*|--dir=*) PROJECT_DIR="${arg#--*=}" ;;
+    --global)
+      echo "Cursor has no scriptable global-rules location — only an in-app" >&2
+      echo "Settings > Customize > Rules text box (see cursor.com/docs/context/rules)." >&2
+      echo "Paste skill content there by hand, or install per-project with --project=<dir>." >&2
+      exit 1
+      ;;
+    *)
+      echo "Error: unrecognized argument '$arg' (expected --project=<dir>)" >&2
+      exit 1
+      ;;
+  esac
+done
+TARGET="${PROJECT_DIR:-$(pwd)}"
 RULES_DIR="$TARGET/.cursor/rules"
 
 mkdir -p "$RULES_DIR"
@@ -60,19 +83,15 @@ install_one() {
   echo "wrote  $RULES_DIR/$name.mdc"
 }
 
-if [[ "$SKILL" == "all" ]]; then
-  for d in "$SKILLS_SRC"/*/; do
-    name="$(basename "$d")"
-    # A dir with no SKILL.md is not a skill (e.g. a companion-only or probe dir) — skip, don't abort.
-    if [[ ! -f "$d/SKILL.md" ]]; then
-      echo "skip   $name (no SKILL.md)"
-      continue
-    fi
-    install_one "$name"
-  done
-else
-  install_one "$SKILL"
-fi
+for d in "$SKILLS_SRC"/*/; do
+  name="$(basename "$d")"
+  # A dir with no SKILL.md is not a skill (e.g. a companion-only or probe dir) — skip, don't abort.
+  if [[ ! -f "$d/SKILL.md" ]]; then
+    echo "skip   $name (no SKILL.md)"
+    continue
+  fi
+  install_one "$name"
+done
 
 echo
 echo "Done. Installed into: $RULES_DIR"

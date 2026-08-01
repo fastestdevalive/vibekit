@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # Top-level vibekit installer. Dispatches to the right per-tool adapter.
+# Always installs every skill — there is no per-skill option.
 #
-# Usage: ./install.sh <tool> [skill-name]
-#   tool:       claude-code | cursor | gemini | agy
-#   skill-name: optional, defaults to "all"
+# Usage: ./install.sh <tool> [--project=<dir>]
+#   tool: claude-code | cursor | agy | opencode
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <claude-code|cursor|gemini|agy> [skill-name]" >&2
+  echo "Usage: $0 <claude-code|cursor|agy|opencode> [--project=<dir>]" >&2
   exit 1
 fi
 

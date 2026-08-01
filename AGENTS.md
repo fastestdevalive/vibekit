@@ -1,6 +1,6 @@
 # vibekit — Agent guide
 
-Toolkit of agentic software-development skills. Skills are plain Markdown, adapted for Claude Code, Cursor, and Gemini CLI via thin per-tool adapters.
+Toolkit of agentic software-development skills. Skills are plain Markdown, adapted for Claude Code, Cursor, agy (Antigravity), and OpenCode via thin per-tool adapters.
 
 ## SWE workflow
 
@@ -42,8 +42,8 @@ skills/<name>/
 adapters/
   claude-code/install.sh     ← → ~/.claude/skills/<name>/
   cursor/install.sh          ← → .cursor/rules/<name>.mdc
-  gemini/install.sh          ← → GEMINI.md + .gemini/commands/<name>.md
   agy/install.sh             ← → .agents/skills/<name>/
+  opencode/install.sh        ← → ~/.config/opencode/skills/<name>/
 install.sh                   ← top-level dispatcher
 ```
 
@@ -85,15 +85,21 @@ install.sh                   ← top-level dispatcher
 ## Installing skills into a project
 
 ```bash
-# Claude Code (installs to ~/.claude/skills/)
+# Claude Code — global, installs to ~/.claude/skills/
 ./install.sh claude-code
 
-# Gemini CLI (appends to GEMINI.md + emits .gemini/commands/)
-./install.sh gemini [skill-name] [target-dir]
+# OpenCode — global by default (~/.config/opencode/skills/<name>/);
+# pass --project=<dir> to scope to one project instead
+./install.sh opencode [--project=<dir>]
 
-# Cursor (.cursor/rules/<name>.mdc)
-./install.sh cursor [skill-name] [target-dir]
+# Cursor — project-scoped (.cursor/rules/<name>.mdc); no scriptable global exists
+./install.sh cursor [--project=<dir>]
+
+# agy (Antigravity) — project-scoped (.agents/skills/<name>/) by default
+./install.sh agy [--project=<dir>]
 ```
+
+Every installer installs **all skills** — there is no per-skill option.
 
 ## Scaffolding a new project
 

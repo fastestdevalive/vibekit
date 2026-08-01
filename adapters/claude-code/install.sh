@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Install vibekit skill(s) into Claude Code's user skills directory.
+# Install every vibekit skill into Claude Code's user skills directory.
 #
-# Usage: ./install.sh [skill-name]
-#   skill-name: name of a skill under ../../skills/, or "all" (default)
+# Usage: ./install.sh
 
 set -euo pipefail
 
@@ -10,8 +9,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 SKILLS_SRC="$REPO_ROOT/skills"
 CLAUDE_SKILLS_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
-
-SKILL="${1:-all}"
 
 # Stale-install cleanup: skills renamed in vibekit still linger under their old
 # name in ~/.claude/skills/ until removed explicitly.
@@ -62,18 +59,14 @@ install_one() {
   done
 }
 
-if [[ "$SKILL" == "all" ]]; then
-  for d in "$SKILLS_SRC"/*/; do
-    name="$(basename "$d")"
-    # A dir with no SKILL.md is not a skill (companion-only or probe) — skip, don't abort.
-    if [[ ! -f "$d/SKILL.md" ]]; then
-      echo "skip   $name (no SKILL.md)"; continue
-    fi
-    install_one "$name"
-  done
-else
-  install_one "$SKILL"
-fi
+for d in "$SKILLS_SRC"/*/; do
+  name="$(basename "$d")"
+  # A dir with no SKILL.md is not a skill (companion-only or probe) — skip, don't abort.
+  if [[ ! -f "$d/SKILL.md" ]]; then
+    echo "skip   $name (no SKILL.md)"; continue
+  fi
+  install_one "$name"
+done
 
 echo
 echo "Done. Installed into: $CLAUDE_SKILLS_DIR"
