@@ -44,8 +44,10 @@ RULES — read before writing or implementing:
 
 - **Prose paragraphs** — any multi-sentence text block without structural markup
 - **Verbose requirements** — one line max per requirement; split if longer
-- **Inline explanations** — one sentence max; use sub-bullets if more is needed
+- **Inline explanations** — strictly max one sentence per bullet. Use nested sub-bullets for supplementary context.
 - File paths + line numbers for every code reference — no vague "the view model"
+- **Post-hoc process narrative** — review-round notes, handoff summaries, device-verification play-by-play; these belong in commit messages or a separate review artifact, not the plan body
+- **Restating the same fact in multiple sections** — state an invariant once (typically in Key Decisions) and cross-reference elsewhere (e.g. "— see Decision 4"), don't re-derive it
 
 ---
 
@@ -130,7 +132,7 @@ RULES — read before writing or implementing:
 - [ ] Diagram present where the reader would otherwise hold >3 relationships in their head (see `SECTIONS.md`)
 - [ ] Key Decision entry for every non-trivial design choice (error handling, auth, caching, etc.)
 - [ ] Every Key Decision has a file path in **Where**
-- [ ] Files summary table present (includes test files)
+- [ ] Files & Phase Impact table present (includes test files and contract changes)
 - [ ] File paths include line numbers where specific
 - [ ] Every phase has a `**Verify phase N:**` block with named, specific test items
 - [ ] Self-containment bar passes — "could haiku implement this cold?"

@@ -9,18 +9,17 @@
 All plans follow this structure (see `_template_arch.md` / `_template_plan.md`):
 
 1. **Frontmatter** — Issue, Branch, Status, PRD link
-2. **Problem** — 1-3 bullets: what's broken / missing
-3. **Concept** — High-level user-facing behavior
+2. **Problem** — 1-3 bullets: what's broken / missing (link the master PRD instead of restating it, when one exists)
+3. **Concept** — High-level user-facing behavior (link the master PRD instead of restating it, when one exists)
 4. **Requirements** — Numbered table
 5. **Research** — Bullet-point findings with file paths + line numbers
 6. **Architecture Diagram** — boundary diagram (mermaid `flowchart`); one line if single-module
-7. **Entities & Modules** — table with public interface column
+7. **Modules & Interfaces / Entities & Modules** — table with public interface column (plan: folded into Files & Phase Impact, see below; arch: kept as-is)
 8. **Architecture** — Single diagram showing all components and connections
 9. **Design Details** — CUJs, System Boundaries, Data Model, API Contracts, Key Decisions
-10. **Files to Modify** — Table: `| File | Change |`
-11. **Risks / Open Questions** — Table: `| # | Question | Notes |`
-12. **Implementation Phases** — Phased checklist with test verification blocks
-13. **Files Summary** — Table mapping file → phase → change
+10. **Risks / Open Questions** — Table: `| # | Question | Notes |`
+11. **Implementation Phases** — Phased checklist with test verification blocks
+12. **Files & Phase Impact** — Table mapping file → status → phase → description/contract change
 
 ---
 
@@ -28,7 +27,7 @@ All plans follow this structure (see `_template_arch.md` / `_template_plan.md`):
 
 - Every phase ends with a **`Verify phase N:`** block — the phase is not done until those tests pass
 - Implementation items: `N.1`, `N.2` … · Test items: `N.T1`, `N.T2` … (T prefix distinguishes them)
-- Test files belong in the Files Summary table alongside source files
+- Test files belong in the Files & Phase Impact table alongside source files
 - "Write tests" without a class name or assertion is not a valid test item — be specific
 
 ```markdown
@@ -46,7 +45,7 @@ All plans follow this structure (see `_template_arch.md` / `_template_plan.md`):
 
 ## Tables
 
-- File changes: `| File | Change |`
+- Files & Phase Impact: `| File | Status | Phase | Description / Contract Change |`
 - Risk matrix: `| # | Question | Notes |`
 - Config/state: `| Variant | Current | Target |`
 - Options: `| Option | Pros | Cons |`
@@ -68,13 +67,38 @@ flowchart LR
 ```
 ---
 
-## Modules & Interfaces (plan) / Entities & Modules (arch)
+## Entities & Modules (arch)
+
+> Plan-side module/interface info now lives in the **Files & Phase Impact** table (see below) —
+> this section covers only the arch-level `Entities & Modules` table.
 
 Declares a **public interface**, not just a dependency list — that's what gets invented badly when missing.
 | Module | Responsibility | Public interface | Owns |
 |--------|---------------|------------------|------|
 | `BackupSerializer` | Config → bytes | `serialize(Config): Result<ByteArray>` | nothing (pure) |
 | `RestoreCoordinator` | Apply a backup transactionally | `restore(ByteArray): Result<Unit>` | write lock |
+---
+
+## Files & Phase Impact (plan)
+
+Replaces the old `Modules & Interfaces` / `Files to Modify` / `Files Summary` trio with one
+table, positioned where `Files Summary` used to be (after Implementation Phases — it needs
+phase numbers, which don't exist until the phases are written).
+
+| File | Status | Phase | Description / Contract Change |
+|------|--------|-------|-------------------------------|
+| `path/to/File.ext` | **Modified** | 1.2 | Contract: `funcName(x: Int): String` — handles fallback computation · Owns: nothing (pure) |
+| `path/to/NewClass.kt` | **New** | 1.1 | Contract: exposes state via `stateFlow` · Owns: write lock |
+| `path/to/NewClassTest.kt` | **New** | 1.T1 | Unit tests for Class operations |
+
+- **Status** is `New` / `Modified` / `Unchanged` — an implementer must not have to guess which
+- **Convention:** when a row's change is more than trivial, prefix Description with
+  `Contract: <signature/shape>` and, if the file owns state/a lock, append `· Owns: <state>`.
+  Rows with no interface/ownership implication (most test files, config tweaks) skip the
+  convention and just describe the change in one clause — don't force it everywhere
+- **Master/root exception:** a master or root plan with a populated `Sub-Plan Breakdown` table
+  (see `_template_plan.md`) replaces its own Files & Phase Impact table with one line pointing
+  at Sub-Plan Breakdown — don't duplicate an index that table already provides
 ---
 
 ## Diagrams — pick what communicates best
@@ -181,6 +205,7 @@ Rules:
 - Every non-trivial design choice gets its own entry — don't bury it in prose
 - Code snippet is optional; include only when the pattern wouldn't be clear from the description
 - "Where" must have a file path — if it spans files, list each one
+- A Decision block holds the final decision only — not the review debate that produced it (BLOCKING findings, rejected alternatives); route that to commit messages or a separate review artifact, not the plan
 
 ---
 
@@ -188,15 +213,15 @@ Rules:
 
 | Section | Answers | Columns |
 |---------|---------|---------|
-| **Modules & Interfaces** (plan) | what code this change creates/modifies + interfaces it calls | Module, **Change**, Responsibility, Public interface, Owns |
+| **Files & Phase Impact** (plan) | what code this change creates/modifies, plus its interface/contract | File, Status, Phase, Description / Contract Change |
 | **Entities & Modules** (arch) | the system's components at design time | Entity/Module, Layer, Responsibility, Interface, Dependencies |
 | **Data Model** | what is *persisted* and its shape | Entity, Field, Type, Constraints |
 
 - A module is a unit of behavior; an entity is a unit of storage
 - A feature can touch modules and persist nothing, or add a column without a new module
-- The plan-side table was called "Entities & Modules" but had no entity column — renamed to **Modules & Interfaces**
+- The plan-side table (formerly "Entities & Modules," then "Modules & Interfaces") is now **Files & Phase Impact** — file-centric instead of module-centric, since that's what an implementer actually executes against
 - **"Module" is project-relative** — class, package, service, or file, whichever this codebase names in review. Define it once, use it consistently
-- **Every row carries a `Change` marker** (`New`/`Modified`/`Unchanged`) — without it the reader cannot tell what is being proposed from what already exists
+- **Every Files & Phase Impact row carries a `Status` marker** (`New`/`Modified`/`Unchanged`) — without it the reader cannot tell what is being proposed from what already exists
 - Arch keeps `Entity / Module` because a system-level view legitimately lists datastores as components
 
 ---

@@ -36,6 +36,7 @@ RULES — read before writing or implementing:
 
 - What's broken / missing (1-3 bullets)
 - Who's affected and how
+- _If a master PRD exists: 1-2 lines max, linking it — e.g. "See [prd-name.md](path) for the full problem statement" — don't restate it_
 
 ## Out of Scope
 
@@ -47,6 +48,7 @@ RULES — read before writing or implementing:
 - 1-3 bullets describing the feature / fix at a high level
 - What user-facing behavior changes
 - What the success state looks like
+- _If a master PRD exists: 1-2 lines max, linking it — e.g. "See [prd-name.md](path) for user-facing behavior" — don't restate it_
 
 ## Requirements
 
@@ -76,26 +78,6 @@ RULES — read before writing or implementing:
 
 - Core issue in 1-2 bullets
 - Secondary factors as sub-bullets
-
----
-
-
-## Modules & Interfaces
-
-_**Module** = whatever unit this project names in code review — a class, package, service, or file.
-Use the project's own vocabulary, not a generic one._
-
-_List every module this change **creates or modifies**, plus any it **depends on** whose interface
-the implementer must call. Do not inventory the codebase._
-
-| Module | Change | Responsibility | Public interface | Owns |
-|--------|--------|---------------|------------------|------|
-| `NewThing` | **New** | What it does | `method(Input): Result<Output>` | state it owns, or "nothing (pure)" |
-| `ExistingThing` | **Modified** | What changes about it | `existing(X): Y` + `newMethod(Z): W` | unchanged |
-| `Dependency` | Unchanged | Why it appears here | `consume(A): B` — called, not changed | — |
-
-- **Change** is `New` / `Modified` / `Unchanged` — an implementer must not have to guess which they are creating
-- `Unchanged` rows exist only to pin an interface being consumed; drop them if nothing is consumed
 
 ---
 
@@ -209,12 +191,6 @@ suspend fun restore(backup: Backup): Result<Unit> = writeLock.withLock {
 
 ---
 
-## Files to Modify
-
-| File | Change |
-|------|--------|
-| `path/to/file.ext` | Brief description |
-
 ## Risks / Open Questions
 
 | # | Question | Notes |
@@ -282,15 +258,23 @@ This plan spawned the following sub-plans — bug bundles, requirement changes, 
 
 ---
 
-## Files Summary
+## Files & Phase Impact
 
-| File | Phase | Change |
-|------|-------|--------|
-| `schema.ext` | 1.1 | Add new fields |
-| `Module.ext` | 1.2 | Core logic |
-| `ViewModel.ext` | 1.3 | Expose state |
-| `routing.ext` | 2.1 | Add route |
-| `wiring.ext` | 2.3 | Register new component |
-| `ModuleTest.ext` | 1.T1 | New unit tests |
-| `ViewModelTest.ext` | 1.T2 | New unit tests |
-| `ScreenTest.ext` | 2.T1 | New UI tests |
+<!-- Master/root plan with a populated Sub-Plan Breakdown above? Delete this table and
+     replace it with one line: "See Sub-Plan Breakdown — each sub-plan owns its own
+     Files & Phase Impact table." Don't duplicate an index that table already gives. -->
+
+| File | Status | Phase | Description / Contract Change |
+|------|--------|-------|-------------------------------|
+| `schema.ext` | **Modified** | 1.1 | Add new fields |
+| `Module.ext` | **Modified** | 1.2 | Contract: `method(Input): Result<Output>` — core logic · Owns: nothing (pure) |
+| `ViewModel.ext` | **Modified** | 1.3 | Contract: exposes state via `stateFlow` |
+| `routing.ext` | **Modified** | 2.1 | Add route |
+| `wiring.ext` | **Modified** | 2.3 | Register new component |
+| `ModuleTest.ext` | **New** | 1.T1 | New unit tests |
+| `ViewModelTest.ext` | **New** | 1.T2 | New unit tests |
+| `ScreenTest.ext` | **New** | 2.T1 | New UI tests |
+
+- **Status** is `New` / `Modified` / `Unchanged`. **Convention:** prefix non-trivial rows with
+  `Contract: <signature/shape>` and, if the file owns state/a lock, append `· Owns: <state>` —
+  skip the convention for plain test/config rows.

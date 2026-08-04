@@ -48,9 +48,10 @@ For smaller work (bug fixes, refactors, single-screen changes), skip the PRD and
 3. Follow the writing rules in [`FORMAT.md`](./FORMAT.md) — read this before writing or implementing:
    - **Bullet points only** — no prose paragraphs
    - File paths + line numbers for every code reference
-   - Tables for files-to-modify and risks
+   - Files & Phase Impact table for files/phases/contracts, and a table for risks
    - Phased checklist with **per-phase test verification** (`N.T1`, `N.T2` …)
    - Header block, checklist rules, system boundaries, self-containment bar
+   - Enforce single-sentence constraint during plan review phase
 4. Follow the per-section templates in [`SECTIONS.md`](./SECTIONS.md) — what each section of the plan contains, diagram-type table
 5. Move the whole feature directory to `wip/` when work begins, `done/` when complete
 
