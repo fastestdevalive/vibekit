@@ -32,23 +32,20 @@ RULES — read before writing or implementing:
 
 ---
 
-## Problem
+## Problem & Concept
 
-- What's broken / missing (1-3 bullets)
-- Who's affected and how
-- _If a master PRD exists: 1-2 lines max, linking it — e.g. "See [prd-name.md](path) for the full problem statement" — don't restate it_
+- What's broken / missing, and who's affected (1-3 bullets)
+- What the success state looks like
+- _If a master PRD exists: 1-2 lines max, linking it — e.g. "See [prd-name.md](path) for the full problem statement and user-facing behavior" — don't restate it_
+
+| # | User-visible change | Where | Phase |
+|---|----------------------|-------|-------|
+| 1 | One-line description of what the user sees change | screen / surface | phase # |
 
 ## Out of Scope
 
 - Explicit list of things this plan does NOT cover
 - Deferred items or follow-up work
-
-## Concept
-
-- 1-3 bullets describing the feature / fix at a high level
-- What user-facing behavior changes
-- What the success state looks like
-- _If a master PRD exists: 1-2 lines max, linking it — e.g. "See [prd-name.md](path) for user-facing behavior" — don't restate it_
 
 ## Requirements
 
@@ -60,24 +57,34 @@ RULES — read before writing or implementing:
 
 ---
 
+## Change Map
+
+```
+path/to/dir/
+  ExistingFile.ext   ~ one-clause change
+  NewFile.ext        + one-clause purpose
+other/dir/
+  Wiring.ext         ~ register it
+```
+
+`+` new · `~` modified · unmarked = context only
+
+| Today | After this plan |
+|-------|-----------------|
+| current behavior, one clause | new behavior, one clause |
+| doesn't exist | new capability, one clause |
+
+- Tree carries path + marker + ≤4 words only — contract and phase live in Files & Phase Impact
+
+---
+
 ## Research
 
-- Bullet-point findings only — include file paths + line numbers, no prose
-
-### [Code path / area name]
-
-- **File:** `path/to/file.ext:123`
-- **Trigger:** when X happens
-- **Risk:** HIGH / MEDIUM / LOW — why
-
-### [Another area]
-
-- ...
-
-## Root Cause
-
-- Core issue in 1-2 bullets
-- Secondary factors as sub-bullets
+- One bullet per finding: `path:line` — the fact, in one clause
+- A finding earns its place only if a Key Decision or phase item cites it — otherwise cut it
+- Risk label (`HIGH`/`MEDIUM`/`LOW`) only when it changes the plan; omit otherwise
+- Hard cap: Research ≤ 15% of the document
+- **Root cause:** core issue in 1-2 bullets, as the final Research bullet(s)
 
 ---
 
@@ -93,7 +100,7 @@ flowchart LR
 ```
 
 - Name the interface on the edge, not just the arrow
-- Add a second diagram (sequence / state) only when it genuinely helps
+- Add sequence / state / ER views in any section where they beat bullets — no plan-wide diagram budget
 
 ---
 
@@ -164,6 +171,10 @@ _(One block per contract — REST endpoints, GraphQL mutations/queries, RPC meth
 > Include a code sample whenever the tricky part is the **shape of the code** — an ordering
 > constraint, a lifecycle trap, a pattern that is easy to get subtly wrong. Prose describing a
 > pattern the implementer must then re-derive is where plans leak.
+>
+> Rationale is one bullet. Don't restate a Research finding — cite it (`— see Research § <area>`).
+> A choice between >2 options gets a `| Option | Pros | Cons |` table, not prose tradeoffs.
+> Number decisions in the order they appear.
 
 #### Decision 1: [Short title] — *with a snippet, because the pattern IS the decision*
 

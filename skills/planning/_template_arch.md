@@ -83,6 +83,19 @@ flowchart LR
 
 ---
 
+## Target Structure
+
+```
+path/to/new-module/
+  Entry.ext          + new module entrypoint
+existing/dir/
+  Wiring.ext          ~ registers the new module
+```
+
+`+` new · `~` modified · unmarked = context only — one line per top-level module, no per-file detail (each part's own plan owns that)
+
+---
+
 ## Entities & Modules
 
 | Entity / Module | Layer | Responsibility | Public interface | Key Dependencies |

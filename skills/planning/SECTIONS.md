@@ -9,17 +9,42 @@
 All plans follow this structure (see `_template_arch.md` / `_template_plan.md`):
 
 1. **Frontmatter** — Issue, Branch, Status, PRD link
-2. **Problem** — 1-3 bullets: what's broken / missing (link the master PRD instead of restating it, when one exists)
-3. **Concept** — High-level user-facing behavior (link the master PRD instead of restating it, when one exists)
-4. **Requirements** — Numbered table
-5. **Research** — Bullet-point findings with file paths + line numbers
+2. **Problem & Concept** — 1-3 bullets what's broken, then the user-visible change table (link the master PRD instead of restating it, when one exists)
+3. **Requirements** — Numbered table
+4. **Change Map** — directory tree (new/modified markers) + Today/After table — sits above Research, see below
+5. **Research** — Bullet-point findings with file paths + line numbers; only findings a Key Decision or phase item cites
 6. **Architecture Diagram** — boundary diagram (mermaid `flowchart`); one line if single-module
 7. **Modules & Interfaces / Entities & Modules** — table with public interface column (plan: folded into Files & Phase Impact, see below; arch: kept as-is)
-8. **Architecture** — Single diagram showing all components and connections
+8. **Architecture** — components and connections; add sequence/state/ER views alongside the flowchart wherever they read faster than bullets
 9. **Design Details** — CUJs, System Boundaries, Data Model, API Contracts, Key Decisions
 10. **Risks / Open Questions** — Table: `| # | Question | Notes |`
 11. **Implementation Phases** — Phased checklist with test verification blocks
 12. **Files & Phase Impact** — Table mapping file → status → phase → description/contract change
+
+---
+
+## Change Map (plan)
+
+Sits above Research — a human must reach "what changes" before "what I found". Two parts, both mandatory:
+
+1. **Tree** — only directories this plan touches. `+` new file · `~` modified · unmarked = context. Path + marker + ≤4 words — nothing else; contracts and phases live in Files & Phase Impact, never repeat a Description here.
+2. **Today → After** — one row per *behavior* this plan changes, not a file list. A row whose "Today" is "doesn't exist" is fine.
+
+```
+daemon/src/services/
+  context.ts       ~ buildVstEnv()
+  jsonAgent.ts     ~ merge env under spec.env
+  assets/
+    agent-subagent-richchat.md   + Rich-Chat-only prompt fragment
+web-ui/src/components/chat/
+  SubagentRow.tsx  + parent link + live child rows
+```
+
+| Today | After this plan |
+|-------|-----------------|
+| One-clause statement of current behavior | One-clause statement of new behavior |
+
+- Nothing marked `~` or `+` here may be missing from Files & Phase Impact, and vice versa — the tree previews *where*, the table below states *what contract*
 
 ---
 
@@ -58,6 +83,7 @@ All plans follow this structure (see `_template_arch.md` / `_template_plan.md`):
 - Required whenever the change crosses a module boundary; pure single-module change → one line saying so, no diagram
 - Big feature: full system boundary diagram (client/server/DB/3rd-party)
 - Small feature: the touched modules + their neighbours only, not the whole system
+- The single-module escape covers this boundary diagram only — CUJ, state, and data-shape views are decided per section (see Diagrams table below)
 
 ```mermaid
 flowchart LR
@@ -81,9 +107,9 @@ Declares a **public interface**, not just a dependency list — that's what gets
 
 ## Files & Phase Impact (plan)
 
-Replaces the old `Modules & Interfaces` / `Files to Modify` / `Files Summary` trio with one
-table, positioned where `Files Summary` used to be (after Implementation Phases — it needs
-phase numbers, which don't exist until the phases are written).
+Positioned after Implementation Phases — it needs phase numbers, which don't exist until the
+phases are written. Change Map says *where* and *what's new*, at a glance; this table says
+*what contract* and *which phase*, in full.
 
 | File | Status | Phase | Description / Contract Change |
 |------|--------|-------|-------------------------------|
@@ -104,7 +130,7 @@ phase numbers, which don't exist until the phases are written).
 ## Diagrams — pick what communicates best
 
 - **Goal: make it clear and good-looking.** These are defaults, not a cage — a richer diagram that reads better always wins
-- **Rule:** if the reader would hold >3 relationships in their head, draw it
+- **Rule:** if the reader would hold >3 relationships in their head, draw it — or table it. Apply the rule **per section**, not per plan; a plan with five diagrams and three extra tables is normal, not excess
 - Name interfaces on the edges — `Client --POST /items--> API`, not `Client --> API`
 - Mermaid may use `subgraph`, `classDef`, styling — use them when they aid comprehension
 
@@ -115,8 +141,18 @@ phase numbers, which don't exist until the phases are written).
 | State machine / lifecycle | `mermaid stateDiagram-v2` | Transitions are explicit |
 | Entity relationships | `mermaid erDiagram` | Cardinality is explicit |
 | Trivial linear flow | ASCII `A → B → C` | Mermaid adds nothing |
+| Comparison / before-after | **Table** | Two columns beat a paragraph |
 | Data shape / field lists | **Table** | Not a diagram — don't draw it |
 | Directory layout | ASCII tree | Mermaid does this badly |
+
+**Per-section triggers** — don't wait for "judgment", use these:
+
+| Section | Draw when |
+|---------|-----------|
+| CUJs | The journey crosses >2 layers → `sequenceDiagram`, not just ASCII arrows |
+| Data Model | ≥2 related entities → pair the table with an `erDiagram` |
+| Key Decisions | Choosing between >2 options → a `\| Option \| Pros \| Cons \|` table instead of prose tradeoffs |
+| Any entity/session/status field | >2 states → `stateDiagram-v2` |
 
 ```mermaid
 sequenceDiagram
@@ -219,9 +255,8 @@ Rules:
 
 - A module is a unit of behavior; an entity is a unit of storage
 - A feature can touch modules and persist nothing, or add a column without a new module
-- The plan-side table (formerly "Entities & Modules," then "Modules & Interfaces") is now **Files & Phase Impact** — file-centric instead of module-centric, since that's what an implementer actually executes against
+- The plan-side table is **Files & Phase Impact** — file-centric, since that's what an implementer actually executes against
 - **"Module" is project-relative** — class, package, service, or file, whichever this codebase names in review. Define it once, use it consistently
-- **Every Files & Phase Impact row carries a `Status` marker** (`New`/`Modified`/`Unchanged`) — without it the reader cannot tell what is being proposed from what already exists
 - Arch keeps `Entity / Module` because a system-level view legitimately lists datastores as components
 
 ---
@@ -244,7 +279,7 @@ flowchart LR
 ```
 
 Rules:
-- **As many diagrams as earn their place** — one is typical; add a sequence or state view when it genuinely helps
+- **As many diagrams as earn their place** — draw one per relationship worth showing; a flowchart plus a sequence plus a state view in the same plan is normal, not excess
 - Show every major component this feature touches
 - ASCII `→` flows are fine for trivial cases and inside CUJs / Key Decisions
 

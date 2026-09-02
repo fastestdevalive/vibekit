@@ -48,6 +48,8 @@ RULES — read before writing or implementing:
 - File paths + line numbers for every code reference — no vague "the view model"
 - **Post-hoc process narrative** — review-round notes, handoff summaries, device-verification play-by-play; these belong in commit messages or a separate review artifact, not the plan body
 - **Restating the same fact in multiple sections** — state an invariant once (typically in Key Decisions) and cross-reference elsewhere (e.g. "— see Decision 4"), don't re-derive it
+- **A Research finding nothing downstream cites** — if no Key Decision or phase item depends on it, delete it; Research is evidence for the plan, not a record of the search
+- **A Key Decision that re-derives a Research finding** — state it once, cite it (`— see Research § <area>`)
 
 ---
 
@@ -124,15 +126,14 @@ RULES — read before writing or implementing:
 ## Checklist before committing a plan
 
 - [ ] Title and first line make scope clear
-- [ ] No long paragraphs — bullets and tables only
 - [ ] Header block present, right after frontmatter
+- [ ] Change Map present — directory tree + Today/After table, positioned above Research
 - [ ] CUJs written for happy path + at least one error path
 - [ ] Data Model table present with fields, types, constraints, and migration note
 - [ ] API Contracts / System Boundaries defined for every new or changed interface (required if >1 layer touched)
-- [ ] Diagram present where the reader would otherwise hold >3 relationships in their head (see `SECTIONS.md`)
+- [ ] Every section where the reader would hold >3 relationships uses a diagram OR a table — plan-wide count is not a budget (see `SECTIONS.md`)
 - [ ] Key Decision entry for every non-trivial design choice (error handling, auth, caching, etc.)
-- [ ] Every Key Decision has a file path in **Where**
+- [ ] Every Key Decision has a file path in **Where**, and cites (not re-derives) any Research finding it depends on
 - [ ] Files & Phase Impact table present (includes test files and contract changes)
-- [ ] File paths include line numbers where specific
 - [ ] Every phase has a `**Verify phase N:**` block with named, specific test items
 - [ ] Self-containment bar passes — "could haiku implement this cold?"
