@@ -127,7 +127,8 @@ RULES — read before writing or implementing:
 
 - [ ] Title and first line make scope clear
 - [ ] Header block present, right after frontmatter
-- [ ] Change Map present — directory tree + Today/After table, positioned above Research
+- [ ] Change Map present — directory tree + Today/After table, positioned above Research; every tree entry has a matching Files & Phase Impact row (tree ⊆ table)
+- [ ] Research is ≤15% of the document's total line count and every finding is cited by a Key Decision or phase item — cut what isn't
 - [ ] CUJs written for happy path + at least one error path
 - [ ] Data Model table present with fields, types, constraints, and migration note
 - [ ] API Contracts / System Boundaries defined for every new or changed interface (required if >1 layer touched)

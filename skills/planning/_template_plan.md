@@ -35,12 +35,8 @@ RULES — read before writing or implementing:
 ## Problem & Concept
 
 - What's broken / missing, and who's affected (1-3 bullets)
-- What the success state looks like
+- What the success state looks like — the user-visible delta itself lives in Change Map's Today/After table below, don't duplicate it here
 - _If a master PRD exists: 1-2 lines max, linking it — e.g. "See [prd-name.md](path) for the full problem statement and user-facing behavior" — don't restate it_
-
-| # | User-visible change | Where | Phase |
-|---|----------------------|-------|-------|
-| 1 | One-line description of what the user sees change | screen / surface | phase # |
 
 ## Out of Scope
 
@@ -61,20 +57,21 @@ RULES — read before writing or implementing:
 
 ```
 path/to/dir/
-  ExistingFile.ext   ~ one-clause change
-  NewFile.ext        + one-clause purpose
+  ExistingFile.ext   ~ 3-4 word gist
+  NewFile.ext        + 3-4 word gist
 other/dir/
-  Wiring.ext         ~ register it
+  Wiring.ext         ~ registers it
 ```
 
-`+` new · `~` modified · unmarked = context only
+`+` new file · `~` modified · unmarked = context only. Source files touched by this plan only — no tests, no config.
 
 | Today | After this plan |
 |-------|-----------------|
 | current behavior, one clause | new behavior, one clause |
 | doesn't exist | new capability, one clause |
 
-- Tree carries path + marker + ≤4 words only — contract and phase live in Files & Phase Impact
+- Tree carries path + marker + ≤4-word gist only — contract and phase live in Files & Phase Impact
+- Every `~`/`+` entry has a matching Files & Phase Impact row — **tree ⊆ table, never the reverse**; test files, config, and `Unchanged` rows live in the table only
 
 ---
 
@@ -83,7 +80,7 @@ other/dir/
 - One bullet per finding: `path:line` — the fact, in one clause
 - A finding earns its place only if a Key Decision or phase item cites it — otherwise cut it
 - Risk label (`HIGH`/`MEDIUM`/`LOW`) only when it changes the plan; omit otherwise
-- Hard cap: Research ≤ 15% of the document
+- Hard cap: Research ≤ 15% of this document's total line count — count at final review, before committing
 - **Root cause:** core issue in 1-2 bullets, as the final Research bullet(s)
 
 ---
