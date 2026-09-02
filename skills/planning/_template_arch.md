@@ -86,13 +86,11 @@ flowchart LR
 ## Target Structure
 
 ```
-path/to/new-module/
-  Entry.ext          + new module entrypoint
-existing/dir/
-  Wiring.ext          ~ registers the new module
+path/to/new-module/   + new module (owned by part 01)
+existing/dir/          ~ wiring registered here (part 02)
 ```
 
-`+` new · `~` modified · unmarked = context only — one line per top-level module, no per-file detail (each part's own plan owns that)
+`+` new · `~` modified · unmarked = context only — one line per top-level module or directory, never individual files; each part's own plan owns per-file detail in its own Change Map
 
 ---
 

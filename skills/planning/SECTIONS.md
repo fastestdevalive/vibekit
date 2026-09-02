@@ -9,13 +9,13 @@
 All plans follow this structure (see `_template_arch.md` / `_template_plan.md`):
 
 1. **Frontmatter** — Issue, Branch, Status, PRD link
-2. **Problem & Concept** — 1-3 bullets what's broken, then the user-visible change table (link the master PRD instead of restating it, when one exists)
+2. **Problem & Concept** — 1-3 bullets what's broken + what the success state looks like (link the master PRD instead of restating it, when one exists); the user-visible change delta lives in Change Map's Today/After table, not here
 3. **Requirements** — Numbered table
 4. **Change Map** — directory tree (new/modified markers) + Today/After table — sits above Research, see below
 5. **Research** — Bullet-point findings with file paths + line numbers; only findings a Key Decision or phase item cites
 6. **Architecture Diagram** — boundary diagram (mermaid `flowchart`); one line if single-module
 7. **Modules & Interfaces / Entities & Modules** — table with public interface column (plan: folded into Files & Phase Impact, see below; arch: kept as-is)
-8. **Architecture** — components and connections; add sequence/state/ER views alongside the flowchart wherever they read faster than bullets
+8. **Architecture** _(arch only — plans stop at Architecture Diagram)_ — components and connections; add sequence/state/ER views alongside the flowchart wherever they read faster than bullets
 9. **Design Details** — CUJs, System Boundaries, Data Model, API Contracts, Key Decisions
 10. **Risks / Open Questions** — Table: `| # | Question | Notes |`
 11. **Implementation Phases** — Phased checklist with test verification blocks
@@ -27,24 +27,27 @@ All plans follow this structure (see `_template_arch.md` / `_template_plan.md`):
 
 Sits above Research — a human must reach "what changes" before "what I found". Two parts, both mandatory:
 
-1. **Tree** — only directories this plan touches. `+` new file · `~` modified · unmarked = context. Path + marker + ≤4 words — nothing else; contracts and phases live in Files & Phase Impact, never repeat a Description here.
+1. **Tree** — only directories this plan touches, source files only (no tests, no config). `+` new file · `~` modified · unmarked = context only. Path + marker + ≤4-word gist — nothing else; the contract and the phase live in Files & Phase Impact, never repeat a Description here.
 2. **Today → After** — one row per *behavior* this plan changes, not a file list. A row whose "Today" is "doesn't exist" is fine.
 
 ```
 daemon/src/services/
-  context.ts       ~ buildVstEnv()
-  jsonAgent.ts     ~ merge env under spec.env
+  context.ts       ~ new env helper
+  jsonAgent.ts     ~ merges plugin env
   assets/
-    agent-subagent-richchat.md   + Rich-Chat-only prompt fragment
+    agent-subagent-richchat.md   + subagent prompt
 web-ui/src/components/chat/
-  SubagentRow.tsx  + parent link + live child rows
+  SubagentRow.tsx  + subagent row UI
 ```
 
 | Today | After this plan |
 |-------|-----------------|
 | One-clause statement of current behavior | One-clause statement of new behavior |
+| "doesn't exist" | One-clause statement of a brand-new capability |
 
-- Nothing marked `~` or `+` here may be missing from Files & Phase Impact, and vice versa — the tree previews *where*, the table below states *what contract*
+- Every `~`/`+` tree entry has a matching row in Files & Phase Impact — **tree ⊆ table, never the reverse.** Test files, config tweaks, and `Unchanged` rows appear in the table only; the tree stays a skim-able skeleton, not a second inventory
+- Tree previews *where + one-line gist*; the table states *what contract, what phase* — if a Description needs more than 4 words, that's a signal it belongs in the table, not a reason to widen the tree
+- **Arch doesn't use this section.** An arch doc has no "today" and no phases, so it gets the lighter `## Target Structure` in `_template_arch.md` instead — a tree only, one line per module, no Today/After table
 
 ---
 
