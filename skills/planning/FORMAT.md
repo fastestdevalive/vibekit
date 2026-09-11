@@ -99,6 +99,8 @@ RULES — read before writing or implementing:
 
 - Path: `<subfeature>/screenshots/<descriptive-name>.png`
 - Embed with `![alt](./screenshots/name.png)` — descriptive names aid review
+- **Place screenshots inside the project directory** — never reference files outside the project tree
+- **Never base64-encode** screenshot data inline — always write the file to disk and link it
 - **Default policy: transient** — `screenshots/` is gitignored (`.vibekit/.gitignore`), never committed unless the project sets `screenshots.policy: permanent` in `.vibekit/config.yaml`
 - No `.vibekit/config.yaml` present → transient, same as the explicit default
 - Cleanup (deleting transient screenshots, rewriting refs) is owned by the `sdlc` skill — see `skills/sdlc/PHASES.md`

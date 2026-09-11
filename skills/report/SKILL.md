@@ -67,6 +67,8 @@ Use [`_template_report.md`](./_template_report.md) — Answer → Evidence → D
 
 - Path: `.vibekit/reports/<YYYY-MM-DD-slug>/screenshots/<descriptive-name>.png`
 - Embed with `![alt](./screenshots/name.png)`
+- **Place screenshots inside the project directory** — never reference files outside the project tree
+- **Never base64-encode** screenshot data inline — always write the file to disk and link it
 - **Bootstrap:** `.vibekit/.gitignore` already carries `**/screenshots/` (shared with `feature-plans/`, written by `scaffold.sh`) — on the first report in this project that contains a screenshot, if `.vibekit/.gitignore` does not exist, create it with `config.yaml` and `**/screenshots/`; if it exists, no action needed
 - A project opting into permanent screenshots (keeping them committed) must narrow the shared rule deliberately rather than delete it outright — deleting it would also un-ignore `feature-plans/` screenshots
 
