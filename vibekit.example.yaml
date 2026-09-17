@@ -24,10 +24,14 @@ sdlc:
     #   meta-harness  honor each agent's run_in; if the harness is absent, warn and
     #                 fall back to in-harness (never hard-fail)
     #   in-harness    force everything in-harness, ignoring every agent's run_in
+    #   This whole fallback chain is for `implementer.mode: session` ONLY.
+    #   `mode: turn` ignores it entirely — turn mode always needs `meta_harness` set
+    #   below, and if it isn't, turn mode does not run at all (no in-harness fallback).
     mode: auto
 
     # [honored] null | agent-orchestrator | vibe-station | custom      default: null
     #   null = no meta-harness. Delegation is always opt-in, never inferred.
+    #   Required (non-null) for `implementer.mode: turn` — that mode has no fallback.
     meta_harness: null
 
     # [honored, required when meta_harness: custom]         default: unset
@@ -80,6 +84,29 @@ sdlc:
       run_in: in-harness
       # [spec] a cheaper model is often enough when the plan is self-contained
       model: ${CLI_DEFAULT}
+
+      # [honored] session (default) | turn                              default: session
+      #   session  one implementer session runs the whole plan checklist (unchanged today)
+      #   turn     one implementer spawn per Implementation Phase, verified and terminated
+      #            before the next phase spawns fresh — always meta-harness, NO in-harness
+      #            fallback (see spawn.meta_harness below); requires it to be set, or
+      #            `mode: turn` simply cannot run (PHASES.md § Turn-implement)
+      mode: session
+
+      # [honored, only read under mode: turn]
+      turn:
+        # phase numbers to always stop after, even on a clean verify        default: []
+        #   e.g. [5] pauses for a look after Phase 5; empty = fully automatic phase-to-phase
+        pause_after: []
+        # per-phase model override, keyed by phase number                  default: {}
+        #   any phase not listed uses `implementer.model` above
+        models: {}
+          # 1: deepseek-v4-flash
+          # 3: opus
+        # fresh-spawn retries for one phase's failing verify, before escalating   default: 2
+        #   independent of reviewer.max_iterations — that governs document review,
+        #   this governs test-verify respawns; the two are not linked
+        max_retries: 2
 
     # Runs the plan's verify items and drives the device.
     verifier:
