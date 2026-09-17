@@ -60,6 +60,9 @@ sdlc:
       model: opus      # any model, or ${CLI_DEFAULT}
       gate: llm        # llm | user | both
       max_iterations: 2
+    implementer:
+      mode: session    # session | turn — turn spawns one implementer per Implementation
+                        # Phase; see "Turn-implement" in PHASES.md
 screenshots:
   policy: transient    # transient | permanent
 ```
@@ -235,12 +238,15 @@ stateDiagram-v2
 |-------------|-------|------|
 | `prd` | — | Write / iterate the PRD |
 | `plan` | — | Write / iterate the plan |
-| `implement` | `impl` | Work the checklist |
+| `implement` | `impl` | Work the checklist (per `implementer.mode`, default `session`) |
+| `turn-implement` | `timpl` | Same slot as `implement`, forces `mode: turn` for this run — one implementer spawn per Implementation Phase (`PHASES.md` § Turn-implement) |
 | `verify` | — | Tests + device verification |
 | `review` | — | One reviewer pass on the newest completed artifact |
 
+- `implement` and `turn-implement` occupy the **same canonical slot** — mutually exclusive in one chain; both present → ask, don't guess which wins
+
 - Separators `+` and `-` are interchangeable — `/sdlc prd+plan auth` ≡ `/sdlc prd-plan auth`
-- **Dispatch precedence:** registered subcommand → `prd` → chain → feature name; arg 1 is a chain **iff** every `+`/`-` segment is a phase token
+- **Dispatch precedence:** registered subcommand → `prd` → split (merging adjacent `turn`+`implement` segments into `turn-implement` first) → chain → feature name; arg 1 is a chain **iff** every resulting segment is a phase token
 - `/sdlc backup-restore` is a **feature**, not a chain — `backup` is not a phase token
 - **Chain end is a hard stop** — never run a phase outside the chain, even after a clean review
 - Tokens run in canonical order regardless of typed order; the reorder is announced **before** the first write
@@ -307,6 +313,8 @@ mode: meta-harness
 mode: in-harness
   → always in-harness, even if a harness exists; ignores every agent's `run_in`
 ```
+
+- **This fallback chain is for `implementer.mode: session` only.** `mode: turn` (see `PHASES.md` § Turn-implement) ignores `spawn.mode` entirely: it always requires `spawn.meta_harness` set, and if it isn't, turn mode does not run — **no in-harness fallback, no warning-and-continue**. The main agent stops and says so.
 
 - **Default is in-harness for every role** — no config always means in-harness
 - Only the **implementer** benefits from delegation — the other three are actively worse detached

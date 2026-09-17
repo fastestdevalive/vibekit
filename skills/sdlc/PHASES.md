@@ -37,6 +37,24 @@ flowchart LR
 
 ---
 
+## Turn-implement (`implementer.mode: turn`, or the `turn-implement`/`timpl` token)
+
+- **No fallback.** Requires `spawn.meta_harness` set — if it isn't, STOP and say so; never fall back to in-harness like `mode: session` does. This is the only spawn path in this skill that hard-fails instead of degrading.
+- Loop over the plan's `Implementation Phase`s in order (`Phase 1`, `Phase 2`, ... — same numbering the `planning` skill already writes). Per phase `N`:
+  1. Build a **scoped** prompt: only `N`'s checklist items + its `Files & Phase Impact` rows + the `coding-agent-guardrails`/`coding` load instructions — never the whole plan. Model is `implementer.turn.models[N]`, else `implementer.model`.
+  2. Spawn one fresh implementer (meta-harness). It marks `N.1..N.k` `[x]` and reports done, and **must** write back any decision or deviation into the plan (`## Key Decisions`, or a scratch note) before finishing — it will not exist for phase `N+1`'s agent otherwise.
+  3. **Terminate that session immediately.** It does not run its own verify block.
+  4. The orchestrator runs `N`'s `N.T*` verify block itself (reuse the Verifier role/skill-loading rules above) — never trust the terminated implementer's self-report of green tests.
+  5. Verify fails → respawn a fresh turn for `N` with the failure output attached, up to `implementer.turn.max_retries` (default 2, independent of `reviewer.max_iterations`) fresh spawns, then escalate: "(1) continue anyway (2) pause for manual review"
+     - **(1) continue anyway** commits phase `N`'s source immediately, tagged `[verify-override]` in the commit message, so its unverified state never rides along inside phase `N+1`'s later commit — then advances as if verify had passed
+     - **(2) pause** sets `awaiting_phase: implement` + `impl_turn: {phase: N, of: <total>}` and stops; phase `N`'s failing changes stay uncommitted until a human resolves it
+  6. Verify passes → **auto-commit** the source touched in phase `N` (see Commit rules below), then:
+     - `N` in `implementer.turn.pause_after` → stop: set `awaiting_phase: implement` + `impl_turn: {phase: N, of: <total>}`, report, wait for `/sdlc continue`
+     - otherwise → advance straight to phase `N+1`, no stop (this is the default — `turn.pause_after` defaults to `[]`, i.e. fully automatic)
+- Resume mid-turn-implement reads `impl_turn` the same way M2 reads `last_completed` elsewhere — restate the phase, don't redo `[x]` items already checked
+
+---
+
 ## Resume rules (M2)
 
 - Read `.sdlc-state.yaml`: `current_subfeature`, `last_completed`, `awaiting_phase`
@@ -70,7 +88,7 @@ flowchart LR
 
 ## Commit rules
 
-- **One logical commit per sub-feature** — never commit without explicit permission, except the carve-out below
+- **One logical commit per sub-feature** — never commit without explicit permission, except the carve-outs below
 - Stage only files relevant to the task
 
 **Carve-out for `.vibekit/feature-plans/`:**
@@ -78,10 +96,16 @@ flowchart LR
 | Path | Commit without asking? |
 |------|:---:|
 | `.vibekit/feature-plans/**` (plans, state, checklist) | ✅ yes |
-| Source, config, tests, everything else | ❌ always ask |
+| Source, config, tests, everything else | ❌ always ask (except turn-implement, below) |
 
 - Auto-commits use a fixed prefix so they're easy to squash: `chore(sdlc): <feature>/<NN> <phase>`
 - Directory lifecycle moves (pending→wip→done, park) are committed as part of this carve-out — an uncommitted park is invisible to the next session
+
+**Carve-out for `mode: turn` source commits:**
+
+- Under `implementer.mode: turn` only, source touched in phase `N` auto-commits once that phase's verify passes — this replaces the one-commit-per-sub-feature default with **one commit per verified phase**, so a dead turn mid-phase 3 never loses phases 1–2
+- Message: `chore(sdlc): <feature>/<NN> implement phase <N>/<total>`
+- `mode: session` is unaffected — it still always asks before committing source
 
 ---
 
@@ -96,9 +120,10 @@ flowchart LR
 ## Spawn rules (runner)
 
 - Route per the spawn config in `SKILL.md` — reviewer/planner/verifier always in-harness
-- Implementer: in-harness by default. Delegation needs BOTH `spawn.mode: meta-harness` AND `agents.implementer.run_in: meta-harness` — under the default `mode: auto`, `run_in` is not read at all
+- Implementer under `mode: session`: in-harness by default. Delegation needs BOTH `spawn.mode: meta-harness` AND `agents.implementer.run_in: meta-harness` — under the default `mode: auto`, `run_in` is not read at all
 - `mode: auto` + harness detected → print the suggestion **once**, never delegate on detection alone
 - `mode: meta-harness` + harness not found → WARN, fall back to in-harness, continue (never hard-fail)
+- Implementer under `mode: turn`: ignores all of the above — always requires `spawn.meta_harness` set; absent → STOP, do not run, never fall back to in-harness (§ Turn-implement)
 - **Runner block generation:** derive the block from the initial prompt + detection signals, then show it to the user for approval before first use — never write it silently
 
 ---

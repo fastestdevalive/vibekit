@@ -48,6 +48,8 @@ subfeatures:
     last_completed: "1.2"        # [honored] checklist id — resume anchor; checklist wins over this on conflict
     awaiting_phase: null         # [honored] null|prd|plan|implement|verify|review — non-null ⇒ DO NOT ADVANCE
     awaiting_artifact: null      # [honored] repo-relative path to the artifact being waited on; null iff awaiting_phase is null
+    impl_turn: null              # [honored, mode: turn only] null | {phase: N, of: M} — which Implementation
+                                  #   Phase is in flight; only meaningful while awaiting_phase: implement under turn mode
     phase_chain: null            # [honored] scope of the last invocation, e.g. [plan]; null = default full chain
     superseded_reason: null      # [honored] set on M4 replan — why the prior approach was superseded
     parked_reason: null          # [honored] set on M7 park — why the sub-feature was deprioritized/blocked

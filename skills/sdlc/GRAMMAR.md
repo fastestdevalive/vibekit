@@ -8,7 +8,7 @@
 ## Dispatch precedence
 
 - Precedence is **total** — every arg-1 string resolves to exactly one branch
-- Order: **subcommand → `prd` special case → chain → feature name**
+- Order: **subcommand → `prd` special case → split + turn-implement merge → chain → feature name** — the merge (below) runs before the "every segment a phase token" check, not after
 
 ```mermaid
 flowchart TD
@@ -17,7 +17,8 @@ flowchart TD
     Sub -->|No| Prd{"ARG1 == prd?"}
     Prd -->|Yes| Chain1["chain = [prd]"]
     Prd -->|No| Split["split ARG1 on + or -"]
-    Split --> All{"every segment<br/>a phase token?"}
+    Split --> Merge["merge adjacent turn, implement<br/>segments into turn-implement"]
+    Merge --> All{"every segment<br/>a phase token?"}
     All -->|No| Feat["ARG1 = feature name<br/>chain = default full chain"]
     All -->|Yes| Coll{"ARG1 also an existing<br/>feature dir name?"}
     Coll -->|Yes| Ask["STOP — ask, zero writes"]
@@ -38,13 +39,15 @@ flowchart TD
 | `prd` | — | `prd-<feature>.md` | `prd` |
 | `plan` | — | `arch-<feature>.md` (rare), `plan-<feature>.md`, or `plan-<NN>-<feature>-<sub>.md` | `plan` |
 | `implement` | `impl` | source diff + `[x]` marks | `implement` |
+| `turn-implement` | `timpl` | source diff + `[x]` marks, one commit per phase | `implement` |
 | `verify` | — | test/device results in the plan's verify block | `verify` |
 | `review` | — | reviewer report on the newest completed artifact | `review` |
 
 - Separators `+` and `-` are interchangeable — `prd+plan` ≡ `prd-plan`
 - Arg 1 is a chain **iff** it is not a subcommand **and** every separated segment is a phase token
 - `/sdlc backup-restore` → `backup` is not a phase token → the whole arg is the feature name
-- Canonical order: `prd` < `plan` < `implement` < `verify` < `review`
+- Canonical order: `prd` < `plan` < `implement`/`turn-implement` < `verify` < `review` — the two implement spellings share one rank; both present in a chain → **STOP and ask**, don't pick one
+- **`turn-implement` special-case, checked before the generic split (same treatment as the `prd` special case above):** after splitting on `+`/`-`, if a `turn` segment is immediately followed by an `implement` segment, merge them back into the single token `turn-implement` — this is what lets `/sdlc plan-turn-implement <f>` parse as `[plan, turn-implement]` instead of the bogus 3-way split `[plan, turn, implement]`. `turn` alone (not followed by `implement`) is never a valid token — falls through to feature-name/near-token handling like any other unrecognized segment
 - The chain is **exhaustive and terminal** — never run a phase outside it, even after a clean review
 - A near-token (`planning`, `implementation`, `plans`) is **not** a token — treat as a feature name, never fuzzy-match
 - No chain given → the default full chain; behavior is unchanged from a chain-less invocation
@@ -86,6 +89,7 @@ flowchart TD
 - Gate governs artifact phases **inside** a chain; the **chain end always stops**, whatever the gate
 - Under `gate: user` no reviewer is requested, so "reviewer unavailable → continue without review" does not apply
 - Unknown `gate` value → warn and treat as `llm`
+- **This table does not govern `turn-implement`** — turn mode's phase-to-phase advancement is judged by tests, not this LLM-review gate; see `PHASES.md` § Turn-implement for its own (much simpler) pause rule
 
 ---
 
@@ -94,6 +98,7 @@ flowchart TD
 - Set `awaiting_phase` + `awaiting_artifact` on the sub-feature when a chain ends or a gate stops — this includes the zero-parts `root` entry, which is a sub-feature like any other
 - `awaiting_phase != null` is the **do not advance** signal — `mode` is never overwritten by the pause
 - Both fields are null together or non-null together; for `implement`, `awaiting_artifact` is the plan file
+- Under `mode: turn`, a pause mid-checklist also sets `impl_turn: {phase, of}` alongside `awaiting_phase: implement` — it's the sub-resolution telling `/sdlc status`/`continue` which Implementation Phase is paused; `awaiting_phase` itself stays the same coarse token either way
 
 ```mermaid
 flowchart LR
