@@ -312,3 +312,4 @@ mode: in-harness
 - Only the **implementer** benefits from delegation — the other three are actively worse detached
 - The runner block is **generated from the initial prompt + detection**, then shown for approval — never silently written
 - V1 spawns sequentially; parallel sub-features are a future phase
+- **Never create a new worktree on your own initiative** — in-harness mode means implementation runs as an Agent tool call inside the current session; a new worktree is only created when the user's prompt explicitly requests it

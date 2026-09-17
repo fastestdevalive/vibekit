@@ -136,6 +136,16 @@ phases are written. Change Map says *where* and *what's new*, at a glance; this 
 - **Rule:** if the reader would hold >3 relationships in their head, draw it — or table it. Apply the rule **per section**, not per plan; a plan with five diagrams and three extra tables is normal, not excess
 - Name interfaces on the edges — `Client --POST /items--> API`, not `Client --> API`
 - Mermaid may use `subgraph`, `classDef`, styling — use them when they aid comprehension
+- **Avoid `|` inside node labels** (`{…}`, `[…]`, `(…)`) — it is the edge-label delimiter and breaks the parser; write `or`, `/`, or a newline (`\n`) instead: `Guard{"all sessions terminal?"}` not `Guard{done|exited?}`
+
+### Mermaid syntax rules (applies to all plans, PRDs, and reports)
+
+| Rule | Bad | Good |
+|------|-----|------|
+| Always close the fence — an unterminated ` ```mermaid ` block renders as raw text | ` ```mermaid\nflowchart LR\n    A --> B` (no closing fence) | ` ```mermaid … ``` ` |
+| No `\|` inside node labels — it is the edge-label delimiter | `Guard{done\|exited?}` | `Guard{"done or exited?"}` |
+| No `;` in label text — mermaid treats it as a statement terminator and silently falls back to raw code | `C->>S: POST /items; retry on 5xx` | `C->>S: POST /items, retry on 5xx` |
+| Stick to well-tested types: `sequenceDiagram`, `flowchart`, `graph` | `timeline`, `quadrantChart` | `flowchart LR` |
 
 | Intent | Good default | Why |
 |--------|-------------|-----|
