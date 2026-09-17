@@ -42,6 +42,7 @@ RULES — read before writing or implementing:
 
 ## Format rules — banned
 
+- **Bare mermaid syntax** — `flowchart`, `sequenceDiagram`, `stateDiagram-v2`, `erDiagram`, etc. written outside a ` ```mermaid ` fence will not render; always wrap in ` ```mermaid … ``` `
 - **Prose paragraphs** — any multi-sentence text block without structural markup
 - **Verbose requirements** — one line max per requirement; split if longer
 - **Inline explanations** — strictly max one sentence per bullet. Use nested sub-bullets for supplementary context.
@@ -135,6 +136,7 @@ RULES — read before writing or implementing:
 - [ ] Data Model table present with fields, types, constraints, and migration note
 - [ ] API Contracts / System Boundaries defined for every new or changed interface (required if >1 layer touched)
 - [ ] Every section where the reader would hold >3 relationships uses a diagram OR a table — plan-wide count is not a budget (see `SECTIONS.md`)
+- [ ] Every mermaid diagram is wrapped in a ` ```mermaid ` fence — bare `flowchart`/`sequenceDiagram` etc. keywords in plain text will not render
 - [ ] Key Decision entry for every non-trivial design choice (error handling, auth, caching, etc.)
 - [ ] Every Key Decision has a file path in **Where**, and cites (not re-derives) any Research finding it depends on
 - [ ] Files & Phase Impact table present (includes test files and contract changes)
