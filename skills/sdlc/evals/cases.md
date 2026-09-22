@@ -51,6 +51,7 @@
 | **E44** | — | Zero-parts feature run end-to-end, `gate: llm` | `/sdlc <feature>` full run | Reviewer runs over `plan-<feature>.md` **exactly once** — `root` enters the inner cycle at `implement`, not `plan`, so its own plan is never re-reviewed |
 | **E45** | M3 | `root` mid-impl, context low | "hand this off to haiku" | Handoff prompt names `plan-<feature>.md`; no `NN` anywhere in the path or prompt |
 | **E46** | all | `arch-<feature>.md` drafted with a `## Implementation Phases` section containing `[ ]` items | arch review | Review **FAILS**; names the offending section explicitly; proposes moving the phases into a new part instead |
+| **E47** | — | Sub-feature with a completed `## Verify` block listing bugs, `awaiting_phase: plan` set on a **different** sub-feature | `/sdlc report` | Writes `.vibekit/reports/YYYY-MM-DD-*.md` with only Bugs/Root cause/Action items (+ optional Diagrams) sections; `git status` shows no state file or plan changed; the other sub-feature's `awaiting_phase` is untouched |
 
 - E22-E33 cover M9 (scoped invocation) and the `reviewer.gate` config — added with phase composition
 - E39-E46 cover the arch/plan restructure — template selection (E39-E40), part-vs-sub-plan provenance (E41), the zero-parts `root` entry (E42-E45), and the arch-must-never-carry-phases invariant (E46)
