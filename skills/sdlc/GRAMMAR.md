@@ -12,7 +12,7 @@
 
 ```mermaid
 flowchart TD
-    In["/sdlc ARG1 ARG2..."] --> Sub{"ARG1 in continue, status, list,<br/>add, bugs, handoff, replan, park?"}
+    In["/sdlc ARG1 ARG2..."] --> Sub{"ARG1 in continue, status, list,<br/>add, bugs, handoff, replan, park, report?"}
     Sub -->|Yes| Dispatch["dispatch subcommand<br/>STOP parsing"]
     Sub -->|No| Prd{"ARG1 == prd?"}
     Prd -->|Yes| Chain1["chain = [prd]"]
@@ -25,10 +25,11 @@ flowchart TD
     Coll -->|No| Run["ARG1 = chain, ARG2 = feature"]
 ```
 
-- `/sdlc continue`, `/sdlc status`, `/sdlc list`, `/sdlc add`, `/sdlc bugs`, `/sdlc handoff`, `/sdlc replan`, `/sdlc park` dispatch **before** any `+`/`-` split
+- `/sdlc continue`, `/sdlc status`, `/sdlc list`, `/sdlc add`, `/sdlc bugs`, `/sdlc handoff`, `/sdlc replan`, `/sdlc park`, `/sdlc report` dispatch **before** any `+`/`-` split
 - `/sdlc add plan` → `add` dispatches; `plan` is its `<name>` argument, never a chain
 - `continue` is a **subcommand, never a phase token** — it is the only thing that clears a pause
 - **`prd` is one behavior with two spellings** — the `/sdlc prd <feature>` subcommand *is* the 1-token chain `[prd]`
+- **`report` is a subcommand, never a phase token or a chain member** — it writes a standalone findings file and never advances or reads `phase_chain`; see `SKILL.md` § Subcommands and `PHASES.md` § Report
 
 ---
 
@@ -131,6 +132,7 @@ flowchart LR
 | follow-up naming the awaited artifact | preserved — iterate in place |
 | `/sdlc status`, `/sdlc list` | preserved — read-only |
 | `/sdlc bugs`, `/sdlc add` | preserved on the awaiting sub-feature; the new one becomes current |
+| `/sdlc report` | preserved — read-only, writes a file but touches no state |
 | `/sdlc park` | preserved — restored on resume |
 | `/sdlc replan <awaiting sub>` | **STOP and ask** — the awaited artifact is about to be superseded |
 | a chain naming the same feature | **STOP and ask** — do not silently discard the pause |

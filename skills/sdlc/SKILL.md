@@ -33,6 +33,7 @@ Load each one at the phase that needs it — do not write the artifact from memo
 | Implement | **`coding-agent-guardrails`**, then **`coding`** | Repo hygiene, then code quality |
 | Implement (Android) | **`android-coding`** as well | Kotlin/Compose rules on top |
 | Review | the same skill that governs the artifact under review | Reviewer checks against the real rules, not its own taste |
+| `report` subcommand | **`report`** skill's location + writing rules, **overridden** by `sdlc`'s own [`_template_sdlc_report.md`](./_template_sdlc_report.md) section list | A small file, not the `report` skill's full template |
 
 **Explicit load instructions — one per dependency:**
 
@@ -41,6 +42,7 @@ Load each one at the phase that needs it — do not write the artifact from memo
 - Read the `coding-agent-guardrails` skill before touching any file
 - Read the `coding` skill before writing or editing source
 - Read the `android-coding` skill as well when the work is Android/Kotlin/Compose
+- Read the `report` skill before `/sdlc report`, for its output location and no-prose writing rules — but use `sdlc`'s own restricted section list ([`_template_sdlc_report.md`](./_template_sdlc_report.md)), not the `report` skill's full template
 
 - Resolve by **skill name**, not by path — install layout differs per CLI
 - A skill that isn't installed → say so and continue; never silently improvise its rules
@@ -223,6 +225,7 @@ stateDiagram-v2
 | `/sdlc handoff <sub>` | Prep delegation | Self-containment report + paste-ready prompt |
 | `/sdlc replan <sub>` | Supersede plan | Validity check first, then supersede if needed |
 | `/sdlc park <feature>` | Park to pending/ | Moves dir, records `parked_reason` |
+| `/sdlc report [<sub>]` | Write a small findings file | **Always creates an actual `.md` file** at `.vibekit/reports/YYYY-MM-DD-<slug>.md` — Bugs, Root cause, Action items, optional Diagrams only; no state change |
 
 ---
 

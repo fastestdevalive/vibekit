@@ -77,6 +77,23 @@ flowchart LR
 
 ---
 
+## Report (`/sdlc report [<sub>]`)
+
+- Out-of-chain subcommand, one-shot — like `bugs`/`status`/`list`: dispatches before the `+`/`-` split, never a phase token, never touches `phase_chain` or `awaiting_*`
+- **Always writes an actual `.md` file — never answer in chat only.** If asked to "report" verbally without acting, that is the failure mode this subcommand exists to prevent
+- Location + naming: `.vibekit/reports/YYYY-MM-DD-<slug>.md`, per the `report` skill's convention — **not** under `.vibekit/feature-plans/`
+- Read the `report` skill first for location and no-prose rules, then use `sdlc`'s own [`_template_sdlc_report.md`](./_template_sdlc_report.md) instead of the `report` skill's full template — this file is deliberately smaller
+- **Sections, and only these:** Bugs, Root cause, Action items, and an optional Diagrams section (omit entirely if nothing needs one) — no Answer/Evidence/Detail/Not-checked/Follow-ups sections from the general `report` template
+- Content is tables, bullet points, and mermaid diagrams only — no prose paragraphs
+- Source material, in priority order — **never fabricated, never re-clustered**:
+  1. The named (or current) sub-feature's plan `## Verify` block — the persisted record `verify` writes test/device results into (see `GRAMMAR.md`'s phase-token table)
+  2. Any bug-bundle sub-features already spawned from it (`origin: bug-bundle`, `spawned_from: <this sub>`) — these carry the clustering `/sdlc bugs` already did; this subcommand **summarizes** them, it does not re-cluster
+  3. Neither exists yet (no verify block, no bug bundle) → say so and ask whether to run `verify`/`bugs` first, or write a report with an explicit "no bugs recorded yet" `Bugs` row instead of inventing content
+- No `<sub>` given → use `current_subfeature` from `.sdlc-state.yaml`; no state file at all → ask which feature, same as any other subcommand needing a target
+- Preserves `awaiting_*` if one is outstanding, same as `status`/`list`
+
+---
+
 ## Cleanup (transient screenshots)
 
 - Confirm with the user before deleting (`screenshots.confirm_cleanup`, default `true`)
