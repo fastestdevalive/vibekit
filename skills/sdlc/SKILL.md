@@ -18,6 +18,7 @@ with a pluggable reviewer model and resumable per-feature state.
 
 - Read [`GRAMMAR.md`](./GRAMMAR.md) before parsing any invocation — dispatch precedence, phase chains, gate semantics, pause lifecycle
 - Read [`PHASES.md`](./PHASES.md) before executing any phase — per-phase agent behavior, resume rules, execution modes, handoff protocol
+- Read [`VERIFY-FIX-LOOP.md`](./VERIFY-FIX-LOOP.md) before `/sdlc verify-fix-loop` — the verify → review → plan-fix → implement → gate loop, its roles, config, state, and stop conditions
 - Read [`EXAMPLES.md`](./EXAMPLES.md) for 9 worked usage examples with verbatim prompts
 - Additive: `prd` and `planning` still work standalone without this skill
 
@@ -33,6 +34,7 @@ Load each one at the phase that needs it — do not write the artifact from memo
 | Implement | **`coding-agent-guardrails`**, then **`coding`** | Repo hygiene, then code quality |
 | Implement (Android) | **`android-coding`** as well | Kotlin/Compose rules on top |
 | Review | the same skill that governs the artifact under review | Reviewer checks against the real rules, not its own taste |
+| `verify-fix-loop` subcommand | **`coding-agent-guardrails`** + **`coding`** (implementer prompt), and the governing skill of whatever the reviewer checks against | Role prompts are built from [`VERIFY-FIX-LOOP.md`](./VERIFY-FIX-LOOP.md), not restated here |
 | `report` subcommand | **`report`** skill's location + writing rules, **overridden** by `sdlc`'s own [`_template_sdlc_report.md`](./_template_sdlc_report.md) section list | A small file, not the `report` skill's full template |
 
 **Explicit load instructions — one per dependency:**
@@ -65,6 +67,11 @@ sdlc:
     implementer:
       mode: session    # session | turn — turn spawns one implementer per Implementation
                         # Phase; see "Turn-implement" in PHASES.md
+  verify_fix_loop:         # /sdlc verify-fix-loop only — see VERIFY-FIX-LOOP.md
+    gate_command: ""   # REQUIRED for the loop; no default
+    min_rounds: 3
+    max_rounds: 5
+    agents: {verifier: {model: sonnet}, reviewer: {model: opus}, implementer: {model: sonnet}}
 screenshots:
   policy: transient    # transient | permanent
 ```
@@ -225,6 +232,7 @@ stateDiagram-v2
 | `/sdlc handoff <sub>` | Prep delegation | Self-containment report + paste-ready prompt |
 | `/sdlc replan <sub>` | Supersede plan | Validity check first, then supersede if needed |
 | `/sdlc park <feature>` | Park to pending/ | Moves dir, records `parked_reason` |
+| `/sdlc verify-fix-loop [<feature>]` | Repeat verify → review → plan fixes → implement → gate until the reviewer reports 0 remaining | `.vibekit/reports/verify-fix-loop/<slug>/round-N/{findings,fixes}.md` + one commit per green batch; pauses nothing in `.sdlc-state.yaml` — see `VERIFY-FIX-LOOP.md` |
 | `/sdlc report [<sub>]` | Write a small findings file | **Always creates an actual `.md` file** at `.vibekit/reports/YYYY-MM-DD-<slug>.md` — Bugs, Root cause, Action items, optional Diagrams only; no state change |
 
 ---

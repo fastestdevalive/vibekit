@@ -43,7 +43,7 @@ for f in $ALWAYS_LOADED; do
 done
 
 COMPANIONS="skills/planning/FORMAT.md skills/planning/SECTIONS.md skills/prd/FORMAT.md \
-skills/sdlc/PHASES.md skills/sdlc/GRAMMAR.md skills/sdlc/EXAMPLES.md"
+skills/sdlc/PHASES.md skills/sdlc/GRAMMAR.md skills/sdlc/EXAMPLES.md skills/sdlc/VERIFY-FIX-LOOP.md"
 for f in $COMPANIONS; do
   [[ -f "$f" ]] || continue
   n=$(wc -l < "$f")
@@ -111,12 +111,12 @@ rm -rf "$TMPD"
 # 8. EVERY adapter must skip a companion-only dir, not abort mid-loop.
 #    Was cursor-only; agy shipped uncovered and claude-code was missing the guard entirely.
 mkdir -p skills/_probe && echo probe > skills/_probe/NOTES.md
-for adp in claude-code cursor gemini agy; do
+for adp in claude-code cursor agy opencode; do
   TMPD2="$(mktemp -d)"
   if [[ "$adp" == "claude-code" ]]; then
     CLAUDE_SKILLS_DIR="$TMPD2" ./install.sh "$adp" >/dev/null 2>&1
   else
-    ./install.sh "$adp" all "$TMPD2" >/dev/null 2>&1
+    ./install.sh "$adp" --project="$TMPD2" >/dev/null 2>&1
   fi
   rc=$?
   n=$(find "$TMPD2" \( -name 'SKILL.md' -o -name '*.mdc' -o -name '*.md' \) 2>/dev/null | wc -l)
@@ -260,11 +260,11 @@ else
   fail "eval fixture smoke test failed — run skills/sdlc/evals/smoke.sh"
 fi
 
-# --- cursor/gemini must inline companions, not ship dangling links (gap 2) ---
-# sdlc/SKILL.md links GRAMMAR.md and PHASES.md; those tools have no companion-file
-# mechanism, so the adapters must inline the companion CONTENT, not just the link text.
+# --- cursor must inline companions, not ship dangling links (gap 2) ---
+# sdlc/SKILL.md links GRAMMAR.md and PHASES.md; Cursor has no companion-file
+# mechanism, so the adapter must inline the companion CONTENT, not just the link text.
 TMPD4="$(mktemp -d)"
-./install.sh cursor all "$TMPD4" >/dev/null 2>&1
+./install.sh cursor --project="$TMPD4" >/dev/null 2>&1
 if grep -q "Dispatch precedence" "$TMPD4/.cursor/rules/sdlc.mdc" 2>/dev/null \
     && grep -q "Resume rules (M2)" "$TMPD4/.cursor/rules/sdlc.mdc" 2>/dev/null; then
   pass "cursor sdlc.mdc inlines GRAMMAR.md + PHASES.md content"
@@ -277,20 +277,5 @@ else
   pass "cursor sdlc.mdc excludes evals/"
 fi
 rm -rf "$TMPD4"
-
-TMPD5="$(mktemp -d)"
-./install.sh gemini all "$TMPD5" >/dev/null 2>&1
-if grep -q "Dispatch precedence" "$TMPD5/GEMINI.md" 2>/dev/null \
-    && grep -q "Resume rules (M2)" "$TMPD5/GEMINI.md" 2>/dev/null; then
-  pass "gemini GEMINI.md inlines GRAMMAR.md + PHASES.md content"
-else
-  fail "gemini GEMINI.md missing inlined companion content"
-fi
-if grep -q "evals/" "$TMPD5/GEMINI.md" 2>/dev/null; then
-  fail "gemini GEMINI.md leaked an evals/ reference"
-else
-  pass "gemini GEMINI.md excludes evals/"
-fi
-rm -rf "$TMPD5"
 
 exit "$FAIL"
