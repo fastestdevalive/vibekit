@@ -34,6 +34,7 @@ def lint_file(path: Path) -> list[tuple[int, str]]:
     violations: list[tuple[int, str]] = []
     in_fence = False
     in_frontmatter = False
+    in_html_comment = False
     lines = path.read_text(encoding="utf-8").splitlines()
     for lineno, raw in enumerate(lines, start=1):
         line = raw.rstrip()
@@ -49,6 +50,13 @@ def lint_file(path: Path) -> list[tuple[int, str]]:
             continue
         if in_fence or not line.strip():
             continue
+        if "<!--" in line and "-->" not in line:
+            in_html_comment = True
+            continue
+        if in_html_comment:
+            if "-->" in line:
+                in_html_comment = False
+            continue
         if TABLE_ROW.match(line) or BULLET.match(line) or HEADING.match(line) or BLOCKQUOTE.match(line) or HTML_COMMENT.match(line):
             continue
         if count_sentences(line) > 1:
@@ -58,7 +66,7 @@ def lint_file(path: Path) -> list[tuple[int, str]]:
 
 def main(argv: list[str]) -> int:
     repo_root = Path(__file__).resolve().parents[3]
-    targets = [Path(p) for p in argv] or [repo_root / "skills", repo_root / ".vibekit" / "vibekit.example.yaml"]
+    targets = [Path(p) for p in argv] or [repo_root / "skills", repo_root / "vibekit.example.yaml"]
 
     files: list[Path] = []
     for t in targets:
@@ -73,6 +81,8 @@ def main(argv: list[str]) -> int:
             continue  # eval case tables intentionally quote prose in Pass criteria cells
         if f.name == "EXAMPLES.md":
             continue  # worked-example narrative ("Situation:" prose) — moved verbatim from source draft
+        if f.name.startswith("_template_") or f.name.startswith("_"):
+            continue  # templates are copied and filled, not loaded as skill context
         violations = lint_file(f)
         for lineno, text in violations:
             print(f"{f}:{lineno}: multi-sentence line outside table/fence/bullet/heading: {text[:100]}")

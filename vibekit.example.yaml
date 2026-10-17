@@ -115,6 +115,48 @@ sdlc:
       run_in: in-harness
       model: opus            # [spec]
 
+  # ── /sdlc verify-fix-loop — repeat verify → review → plan fixes → implement → gate ──
+  #   Owned by skills/sdlc/VERIFY-FIX-LOOP.md. Read ONLY by that subcommand.
+  verify_fix_loop:
+    # [honored] REQUIRED — shell command that must be green before a batch commits   default: unset
+    #   Unset → the loop stops before round 1 and asks. Never guessed.
+    gate_command: ""
+    # [honored] never converge before this round, even at REMAINING_ISSUES: 0         default: 3
+    min_rounds: 3
+    # [honored] hard stop → "not converged"                                           default: 5
+    max_rounds: 5
+    # [honored] fixes per implementer spawn                                           default: 5
+    batch_size: 5
+    # [honored] paths the verifier + reviewer compare against                         default: []
+    design_refs: []
+    # [honored] known issues re-checked EVERY round, injected verbatim                default: []
+    standing_issues: []
+    # [honored] critical user journeys the verifier runs, PASS/FAIL each             default: []
+    cujs: []
+    # [honored] minimum screenshots for a verifier pass to count as non-thin          default: 8
+    min_screenshots: 8
+    agents:
+      # Observes only; never edits source.
+      verifier:
+        run_in: in-harness
+        model: sonnet
+        fallback_model: sonnet       # used once if the pass is thin
+        capture: screenshots         # screenshots | logs | none
+        time_limit_min: 50
+      # Inspects every screenshot for what the verifier missed, AND writes fixes.md
+      # (one role, one spawn — there is no separate planner).
+      reviewer:
+        run_in: in-harness
+        model: opus
+        time_limit_min: 25
+      # Implements one batch of fixes; orchestrator gates + commits.
+      implementer:
+        run_in: in-harness
+        model: sonnet
+        fallback_model: opus         # used once if the gate is red or no diff
+        parallel: false              # true → may fan out in-harness subagents
+        time_limit_min: 50
+
   # ── Project bootstrap ───────────────────────────────────────────────────────
   setup:
     # [spec] free-form commands run before implementation — nothing runs them yet   default: []
