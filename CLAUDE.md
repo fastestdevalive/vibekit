@@ -25,6 +25,7 @@ For small changes (bug fixes, single-screen tweaks, refactors): skip the PRD, wr
 | [`coding-agent-guardrails`](skills/coding-agent-guardrails/) | File size limits, code structure, VCS discipline, build behavior |
 | [`coding`](skills/coding/) | Universal coding rules — error handling, testing, API design, dependencies, config/secrets, logging |
 | [`android-coding`](skills/android-coding/) | Android/Kotlin/Compose rules — modular architecture, ViewModel scope, Material 3, Compose pitfalls, strings, navigation, network safety |
+| [`rust-coding`](skills/rust-coding/) | Rust rules — safety, thiserror/anyhow, locking, Tokio hygiene, API shape, serde wire compat, fmt/clippy/test gate |
 | [`sdlc`](skills/sdlc/) | Orchestrates PRD → Plan → Review → Implement → Verify → Review with pluggable reviewer + resumable state |
 | [`report`](skills/report/) | One-shot investigation → findings document — no state, no checklist, no phases |
 
@@ -56,7 +57,7 @@ install.sh                   ← top-level dispatcher
 - `AGENTS.md` is retired as a skill filename — one filename, two conflicting audiences (agent-facing rules vs maintainer notes)
 - Every companion file is **named for its content** and **linked from `SKILL.md`** — an unlinked file is never loaded
 - `CONTRIBUTING.md` is reserved for maintainer-only docs ("what belongs in this skill") and is excluded from adapter installs
-- Pure rule skills (`coding-agent-guardrails`, `android-coding`) need no companion — `SKILL.md` is the whole skill
+- Pure rule skills (`coding-agent-guardrails`, `android-coding`, `rust-coding`) need no companion — `SKILL.md` is the whole skill
 
 ## Feature-plan directory layout
 

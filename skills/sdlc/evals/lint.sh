@@ -224,6 +224,8 @@ EDGES="
 coding:coding-agent-guardrails
 android-coding:coding
 android-coding:coding-agent-guardrails
+rust-coding:coding
+rust-coding:coding-agent-guardrails
 sdlc:prd
 sdlc:planning
 sdlc:coding-agent-guardrails

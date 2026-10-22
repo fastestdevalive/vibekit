@@ -139,6 +139,7 @@ Every adapter overwrites each shipped skill's content on re-run, so edits upstre
 | `coding-agent-guardrails` | File size limits, code structure, VCS discipline, build behavior | ✅ v0.1 |
 | `coding` | Universal coding rules — error handling, testing, API design, dependencies, config/secrets, logging | ✅ v0.1 |
 | `android-coding` | Android/Kotlin/Compose rules, extends `coding` + `coding-agent-guardrails` | ✅ v0.1 |
+| `rust-coding` | Rust rules — safety, thiserror/anyhow, locking, Tokio hygiene, API shape, serde wire compat, tooling gate; extends `coding` + `coding-agent-guardrails` | ✅ v0.1 |
 | `sdlc` | Orchestrates PRD → Plan → Review → Implement → Verify → Review, pluggable reviewer + resumable state | ✅ v0.1 |
 | `report` | One-shot investigation → findings document — no state, no checklist, no phases | ✅ v0.1 |
 | `code-review` | Agent-friendly review checklists + PR templates | 🔜 planned |
@@ -175,6 +176,8 @@ vibekit/
 │   ├── android-coding/
 │   │   ├── SKILL.md                              ← Android/Kotlin/Compose rules
 │   │   └── CONTRIBUTING.md                       ← maintainer notes (not installed)
+│   ├── rust-coding/
+│   │   └── SKILL.md                              ← Rust coding rules
 │   ├── sdlc/
 │   │   ├── SKILL.md                              ← orchestration + config + decomposition
 │   │   ├── PHASES.md                             ← per-phase agent behavior
