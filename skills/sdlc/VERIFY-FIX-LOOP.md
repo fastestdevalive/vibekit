@@ -160,7 +160,7 @@ Autonomous loops cannot ask per step, and the repo's VCS rule is "never commit w
 
 - Parse `### <ID> [<sev>]` headings; sort High → Med → Low, then by number; drop IDs already `committed`; chunk by `batch_size`
 - One fresh implementer per batch, with this prompt contract (**non-negotiable, ship verbatim in spirit**):
-  - Read `coding-agent-guardrails`, then `coding` (+ `android-coding` on Kotlin/Compose) before touching any file
+  - Read `coding-agent-guardrails`, then `coding` (+ `android-coding` on Kotlin/Compose, `rust-coding` on Rust) before touching any file
   - Implement **only** the batch's IDs, completely — no stubs, no TODO-as-implementation, no `@Ignore`d or weakened tests, no demo-only branches in production paths
   - **No `git add/commit/stash/reset/checkout`** — the orchestrator owns VCS
   - Do not edit `.loop-state.yaml`, `.sdlc-state.yaml`, or anything under `<loop_dir>/` (the reports are read-only inputs)

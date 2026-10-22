@@ -7,7 +7,7 @@
 ## Skill loading (do this at each phase)
 
 - **PRD** → read the `prd` skill (+ its `FORMAT.md`) · **Plan** → read `planning` (+ `FORMAT.md`, `SECTIONS.md`)
-- **Implement** → read `coding-agent-guardrails`, then `coding` (+ `android-coding` on Android)
+- **Implement** → read `coding-agent-guardrails`, then `coding` (+ `android-coding` on Android, `rust-coding` on Rust)
 - **Review** → the reviewer prompt names the governing skill so it checks real rules
 - Never reproduce another skill's rules from memory — load it, or say it is unavailable
 
@@ -162,7 +162,7 @@ none                  → prints: the prompt to paste into a fresh session / oth
 
 ```
 Implement <plan-path> fully.
-- Read the `coding-agent-guardrails` skill, then `coding`, before touching any file (+ `android-coding` on Kotlin work).
+- Read the `coding-agent-guardrails` skill, then `coding`, before touching any file (+ `android-coding` on Kotlin work, `rust-coding` on Rust work).
 - Mark each checklist item [x] as you complete it, in the plan file.
 - Do NOT edit .sdlc-state.yaml — the orchestrator owns it.
 - Do NOT commit source. Commit ONLY the plan checklist — a deliberate carve-out from
