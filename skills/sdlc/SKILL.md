@@ -33,6 +33,7 @@ Load each one at the phase that needs it — do not write the artifact from memo
 | Plan / sub-plan | **`planning`** (+ its `FORMAT.md`, `SECTIONS.md`) | Plan sections, boundary contracts, diagrams, checklist format |
 | Implement | **`coding-agent-guardrails`**, then **`coding`** | Repo hygiene, then code quality |
 | Implement (Android) | **`android-coding`** as well | Kotlin/Compose rules on top |
+| Implement (Rust) | **`rust-coding`** as well | Rust safety/Tokio/serde rules on top |
 | Review | the same skill that governs the artifact under review | Reviewer checks against the real rules, not its own taste |
 | `verify-fix-loop` subcommand | **`coding-agent-guardrails`** + **`coding`** (implementer prompt), and the governing skill of whatever the reviewer checks against | Role prompts are built from [`VERIFY-FIX-LOOP.md`](./VERIFY-FIX-LOOP.md), not restated here |
 | `report` subcommand | **`report`** skill's location + writing rules, **overridden** by `sdlc`'s own [`_template_sdlc_report.md`](./_template_sdlc_report.md) section list | A small file, not the `report` skill's full template |
@@ -44,6 +45,7 @@ Load each one at the phase that needs it — do not write the artifact from memo
 - Read the `coding-agent-guardrails` skill before touching any file
 - Read the `coding` skill before writing or editing source
 - Read the `android-coding` skill as well when the work is Android/Kotlin/Compose
+- Read the `rust-coding` skill as well when the work is Rust (`*.rs`, `Cargo.toml`)
 - Read the `report` skill before `/sdlc report`, for its output location and no-prose writing rules — but use `sdlc`'s own restricted section list ([`_template_sdlc_report.md`](./_template_sdlc_report.md)), not the `report` skill's full template
 
 - Resolve by **skill name**, not by path — install layout differs per CLI

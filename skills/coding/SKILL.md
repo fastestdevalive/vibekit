@@ -27,14 +27,17 @@ coding-agent-guardrails (base — structure + VCS + build discipline)
     │   ├── config/secrets
     │   └── logging
     │
-    └── android-coding (extends coding + coding-agent-guardrails)
-        ├── Kotlin/Compose specifics
-        └── Android-only rules
+    ├── android-coding (extends coding + coding-agent-guardrails)
+    │   ├── Kotlin/Compose specifics
+    │   └── Android-only rules
+    │
+    └── rust-coding (extends coding + coding-agent-guardrails)
+        └── Rust safety, concurrency, Tokio, serde wire rules
 ```
 
 - **Read the `coding-agent-guardrails` skill before applying anything here** — it governs every file you touch (file size, code organization, VCS discipline, build behavior) and is always in force.
 - This skill **extends** it; it never replaces it. Where both speak, the tighter rule wins for the matching file type.
-- Where a project-type-specific skill (`android-coding`, future `web-coding`, `cli-coding`) specifies a tighter rule, that skill wins for its file types.
+- Where a project-type-specific skill (`android-coding`, `rust-coding`, future `web-coding`, `cli-coding`) specifies a tighter rule, that skill wins for its file types.
 
 ## 1. Error handling — catch at boundaries
 
